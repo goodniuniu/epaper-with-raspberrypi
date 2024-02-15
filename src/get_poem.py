@@ -26,31 +26,37 @@ def get_poem_detail(api_url, token):
 
 
 def get_token(api_url):
-    """
-    请求API以获取Token，并将Token存储到文件系统中。
-    
-    参数:
-    - api_url: 获取Token的API的URL。
-    
-    返回:
-    - token: 获取到的Token。
-    """
-    try:
-        # 发起GET请求获取Token
-        response = requests.get(api_url)
-        if response.status_code == 200:
-            # 解析JSON数据获取Token
-            token = response.json()['data']
-            # 将Token存储到文件中
-            with open('token.txt', 'w') as file:
-                file.write(token)
-            return token
-        else:
-            print(f"请求Token失败，状态码：{response.status_code}")
+    if load_token():
+        return load_token()
+    else:
+        
+        
+        """
+        请求API以获取Token，并将Token存储到文件系统中。
+        
+        参数:
+        - api_url: 获取Token的API的URL。
+        
+        返回:
+        - token: 获取到的Token。
+        """
+        
+        try:
+            # 发起GET请求获取Token
+            response = requests.get(api_url)
+            if response.status_code == 200:
+                # 解析JSON数据获取Token
+                token = response.json()['data']
+                # 将Token存储到文件中
+                with open('token.txt', 'w') as file:
+                    file.write(token)
+                return token
+            else:
+                print(f"请求Token失败，状态码：{response.status_code}")
+                return None
+        except Exception as e:
+            print(f"请求Token时出错: {e}")
             return None
-    except Exception as e:
-        print(f"请求Token时出错: {e}")
-        return None
 
 def load_token():
     """
