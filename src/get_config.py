@@ -8,6 +8,7 @@ def get_config_value(key_name):
     config.read(config_path)
     return config['DEFAULT'].get(key_name)
 
+
 # Usage examples:
 # weather_api_key = get_config_value('WEATHER_API_KEY')
 # city_api_key = get_config_value('CITY_API_KEY')

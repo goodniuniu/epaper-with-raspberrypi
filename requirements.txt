@@ -11,8 +11,8 @@ idna==3.6
 pillow==10.2.0
 pycparser==2.21
 requests==2.31.0
-RPi.GPIO==0.7.1
-spidev==3.6
+# RPi.GPIO==0.7.1
+# spidev==3.6
 tinycss2==1.2.1
 urllib3==2.2.0
 webencodings==0.5.1

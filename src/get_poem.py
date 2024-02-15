@@ -4,7 +4,7 @@ import json
 from functools import lru_cache
 
 @lru_cache(maxsize=32)
-def get_daily_poem(api_url, token):
+def get_poem_detail(api_url, token):
     headers = {'X-User-Token': token}
     try:
         response = requests.get(api_url, headers=headers, timeout=10)
