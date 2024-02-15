@@ -69,17 +69,4 @@ def get_token(api_url):
             print(f"请求Token时出错: {e}")
             return None
 
-def load_token():
-    """
-    从文件系统中加载Token。
-    
-    返回:
-    - token: 文件中存储的Token，如果文件不存在则为None。
-    """
-    if os.path.exists('token.txt'):
-        with open('token.txt', 'r') as file:
-            token = file.read().strip()
-        return token
-    else:
-        return None
     

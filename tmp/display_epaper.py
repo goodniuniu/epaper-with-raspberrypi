@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 import logging
 from waveshare_epd import epd3in52
-import text_wrap
+import process_text_wrap
 import get_ipaddress
 
 def save_poem_to_db(poem_data, db_path='poems.db'):
@@ -202,11 +202,11 @@ def display_on_epaper():
     ## 获取每日诗歌相关信息
     poem = get_poem_data()
     save_poem_to_db(poem)
-    poem_title = text_wrap.format_poem_for_display(poem['title'],360)
-    poem_author = text_wrap.format_poem_for_display(poem['author'],360)
-    poem_dynasty = text_wrap.format_poem_for_display(poem['dynasty'],360)
-    poem_content = text_wrap.format_poem_for_display(poem['content'],360)
-    poem_text = text_wrap.format_poem_for_display(poem['full_content'],360)
+    poem_title = process_text_wrap.format_poem_for_display(poem['title'],360)
+    poem_author = process_text_wrap.format_poem_for_display(poem['author'],360)
+    poem_dynasty = process_text_wrap.format_poem_for_display(poem['dynasty'],360)
+    poem_content = process_text_wrap.format_poem_for_display(poem['content'],360)
+    poem_text = process_text_wrap.format_poem_for_display(poem['full_content'],360)
     
     # 获得本地的ipaddress，方便远程运维
     ipaddress = get_ipaddress.get_ip_address()
