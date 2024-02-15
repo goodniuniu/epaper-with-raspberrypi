@@ -3,7 +3,7 @@ import os
 import json
 from functools import lru_cache
 
-@lru_cache(maxsize=32)
+#@lru_cache(maxsize=32)
 def get_poem_detail(api_url, token):
     headers = {'X-User-Token': token}
     try:
