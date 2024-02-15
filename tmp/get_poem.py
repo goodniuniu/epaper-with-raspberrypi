@@ -100,7 +100,7 @@ def get_poem_data():
         
         
 def display_poem_on_epaper():
-    poem = get_poem_main()
+    poem = get_poem_data()
  
     # 初始化电子墨水屏、设置字体等
     epd = epd3in52.EPD()
@@ -159,8 +159,9 @@ poem_data = {
     'author': '黄庭坚',
     'full_content': '黄菊枝头生晓寒。人生莫放酒杯干。风前横笛斜吹雨，醉里簪花倒著冠。\n身健在，且加餐。舞裙歌板尽清欢。黄花白发相牵挽，付与时人冷眼看。'
 }
-
+poem_data = get_poem_data()
 formatted_poem = format_poem_for_display(poem_data, max_width=10)  # Adjust `max_width` as needed for your display
+
 print(formatted_poem)
 # Now you would use your display_text function to render `formatted_poem` on your e-ink display
 

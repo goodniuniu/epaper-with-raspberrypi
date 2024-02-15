@@ -1,9 +1,17 @@
 import requests
 import os
 import json
-from functools import lru_cache
+from pathlib import Path
 
-#@lru_cache(maxsize=32)
+# 假设这段代码的工作目录是项目根目录
+TOKEN_FILE = Path('data/token.txt')
+
+def load_token():
+    if TOKEN_FILE.exists():
+        return TOKEN_FILE.read_text().strip()
+    return None
+
+
 def get_poem_detail(api_url, token):
     headers = {'X-User-Token': token}
     try:
@@ -19,18 +27,19 @@ def get_poem_detail(api_url, token):
                 'full_content': '\n'.join(data['data'].get('origin', {}).get('content', [])),
             }
             return poem_details
-        return None
+        else:
+            print(f"请求每日古诗词失败，状态码：{response.status_code}")
+            return None
     except (requests.RequestException, ValueError) as e:
         print(f"请求每日古诗词时出错: {e}")
         return None
 
 
 def get_token(api_url):
-    if load_token():
-        return load_token()
+    token = load_token()
+    if token:
+        return token
     else:
-        
-        
         """
         请求API以获取Token，并将Token存储到文件系统中。
         
@@ -48,7 +57,9 @@ def get_token(api_url):
                 # 解析JSON数据获取Token
                 token = response.json()['data']
                 # 将Token存储到文件中
-                with open('token.txt', 'w') as file:
+                
+                # 修改get_token函数中的文件操作部分
+                with TOKEN_FILE.open('w') as file:
                     file.write(token)
                 return token
             else:
