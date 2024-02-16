@@ -3,7 +3,7 @@
 import get_config
 import get_weather
 # import get_poem
-# import class_poem_api
+import class_poem_api
 import logging
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -27,7 +27,7 @@ def main():
     api_url = "https://v2.jinrishici.com/sentence"
     token_url = "https://v2.jinrishici.com/token"
 
-    poem_api = PoemAPI(api_url, token_url)
+    poem_api = class_poem_api.PoemAPI(api_url, token_url)
 
     # 获取诗歌详情
     if poem_api.get_poem_detail():
