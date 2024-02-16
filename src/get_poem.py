@@ -2,6 +2,7 @@ import requests
 import os
 import json
 from pathlib import Path
+import process_poem_db_sql
 
 # 假设这段代码的工作目录是项目根目录
 TOKEN_FILE = Path('data/token.txt')
@@ -12,7 +13,7 @@ def load_token():
     return None
 
 
-def get_poem_detail(api_url, token):
+def get_poem_from_url(api_url, token):
     headers = {'X-User-Token': token}
     try:
         response = requests.get(api_url, headers=headers, timeout=10)
@@ -34,6 +35,18 @@ def get_poem_detail(api_url, token):
         print(f"请求每日古诗词时出错: {e}")
         return None
 
+def get_poem_details_from_db(content,db='poems.db'):
+    id = process_poem_db_sql.find_poem_id_by_context(content)
+    poem = process_poem_db_sql.read_poem_from_db(id)
+    if poem:
+        poem_details = {
+                'content': poem[4],
+                'title': poem[1],
+                'dynasty': poem[2],
+                'author': poem[3],
+                'full_content': '\n'.join(poem[5]),
+            }
+    return poem_details   
 
 def get_token(api_url):
     token = load_token()
