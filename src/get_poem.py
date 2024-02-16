@@ -76,23 +76,24 @@ def get_token(api_url):
     token = load_token()
     if token:
         return token
-    try:
-        # 发起GET请求获取Token
-        response = requests.get(api_url)
-        response.raise_for_status()  # 在状态码非200时抛出异常
-        data = response.json()
-        if 'data' in data:
-            token = data['data']
-            logging.info(token)
-            # 将Token存储到文件中
-            with open(TOKEN_FILE, 'w') as file:
-                file.write(token)                
-            return token
-        else:
-            logging.error(f"Failed to get token, status code: {response.status_code}")
+    else:
+        try:
+            # 发起GET请求获取Token
+            response = requests.get(api_url)
+            response.raise_for_status()  # 在状态码非200时抛出异常
+            data = response.json()
+            if 'data' in data:
+                token = data['data']
+                logging.info(token)
+                # 将Token存储到文件中
+                with open(TOKEN_FILE, 'w') as file:
+                    file.write(token)                
+                return token
+            else:
+                logging.error(f"Failed to get token, status code: {response.status_code}")
+                return None
+        except Exception as e:
+            logging.error(f"Unexpected error getting token: {e}")
             return None
-    except Exception as e:
-        logging.error(f"Unexpected error getting token: {e}")
-        return None
 
     
