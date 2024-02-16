@@ -4,8 +4,20 @@ import json
 from pathlib import Path
 import process_poem_db_sql
 
-# 假设这段代码的工作目录是项目根目录
-TOKEN_FILE = Path('../data/token.txt')
+
+# 获取当前文件所在目录的路径
+current_directory = os.path.dirname(os.path.abspath(__file__))
+
+# 构建 token.txt 文件的路径
+TOKEN_FILE = os.path.join(current_directory, '../data/token.txt')
+
+# try:
+#     with open(token_file_path, 'r') as file:
+#         token = file.read().strip()
+# except FileNotFoundError:
+#     print("Token file not found. Please make sure the file exists.")
+
+
 
 def load_token():
     if TOKEN_FILE.exists():
