@@ -15,10 +15,6 @@ def main():
     poem = get_poem.get_poem_from_url(daily_poem_api_url,poem_token_api)
     print (weather)
     print (poem)
-    poem_api = class_poem_api()
-    poem_api
     
-
-
 if __name__ == '__main__':
     main()
