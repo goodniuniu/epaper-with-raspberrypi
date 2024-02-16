@@ -98,11 +98,13 @@ def get_token(api_url):
             if response.status_code == 200:
                 # 解析JSON数据获取Token
                 token = response.json()['data']
+                logging.info(token)
+                logging.info(TOKEN_FILE)
                 # 将Token存储到文件中
                 
                 # 修改get_token函数中的文件操作部分
-                with TOKEN_FILE.open('w') as file:
-                    file.write(token)
+                with open(TOKEN_FILE, 'w') as file:
+                    file.write(token)                
                 return token
             else:
                 print(f"请求Token失败，状态码：{response.status_code}")
