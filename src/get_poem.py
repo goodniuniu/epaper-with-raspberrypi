@@ -18,12 +18,21 @@ TOKEN_FILE = os.path.join(current_directory, 'data', 'token.txt')
 # except FileNotFoundError:
 #     print("Token file not found. Please make sure the file exists.")
 
-
-
 def load_token():
-    if TOKEN_FILE.exists():
-        return TOKEN_FILE.read_text().strip()
-    return None
+    # 获取文件路径
+    
+    TOKEN_FILE = os.path.join(current_directory, 'data', 'token.txt')
+
+    # 检查文件是否存在
+    if os.path.exists( TOKEN_FILE):
+        with open( TOKEN_FILE, 'r') as file:
+            token = file.read().strip()
+            return token
+    else:
+        print("Token file not found.")
+        return None
+
+
 
 
 def get_poem_from_url(api_url, token):
