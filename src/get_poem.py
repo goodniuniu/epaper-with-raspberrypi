@@ -53,10 +53,10 @@ def get_poem_from_url(api_url, token):
             }
             return poem_details
         else:
-            print(f"请求每日古诗词失败，状态码：{response.status_code}")
+            logging.error(f"Failed to get daily poem, status code: {response.status_code}")
             return None
     except (requests.RequestException, ValueError) as e:
-        print(f"请求每日古诗词时出错: {e}")
+        logging.error(f"Error getting daily poem: {e}")
         return None
 
 def get_poem_details_from_db(content,db='poems.db'):
