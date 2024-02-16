@@ -1,6 +1,6 @@
 import requests
 import os
-import json
+import logging
 from pathlib import Path
 import process_poem_db_sql
 
@@ -22,6 +22,7 @@ def load_token():
     # 获取文件路径
     
     TOKEN_FILE = os.path.join(current_directory, 'data', 'token.txt')
+    logging.info(TOKEN_FILE)
 
     # 检查文件是否存在
     if os.path.exists( TOKEN_FILE):
