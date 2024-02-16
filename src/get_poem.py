@@ -25,7 +25,6 @@ TOKEN_FILE = os.path.join(project_directory, 'data', 'token.txt')
 def load_token():
     # 获取文件路径
     
-    TOKEN_FILE = os.path.join(current_directory, 'data', 'token.txt')
     logging.info(TOKEN_FILE)
 
     # 检查文件是否存在
