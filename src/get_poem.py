@@ -5,6 +5,8 @@ from pathlib import Path
 import process_poem_db_sql
 
 import os
+# 配置日志
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 # 获取当前文件所在目录的路径（src 目录）
@@ -15,6 +17,7 @@ project_directory = os.path.dirname(current_directory)
 
 # 构建 token.txt 文件的路径
 TOKEN_FILE = os.path.join(project_directory, 'data', 'token.txt')
+logging.info(TOKEN_FILE)
 
 # try:
 #     with open(token_file_path, 'r') as file:
