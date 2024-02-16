@@ -92,6 +92,9 @@ def get_token(api_url):
             else:
                 logging.error(f"Failed to get token, status code: {response.status_code}")
                 return None
+        except requests.RequestException as e:
+            logging.error(f"Error getting token: {e}")
+            return None
         except Exception as e:
             logging.error(f"Unexpected error getting token: {e}")
             return None

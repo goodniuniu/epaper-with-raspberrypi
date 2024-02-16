@@ -2,6 +2,7 @@
 import requests
 import os
 import textwrap
+import logging
 
 def get_token(api_url):
     """
@@ -24,10 +25,13 @@ def get_token(api_url):
                 file.write(token)
             return token
         else:
-            print(f"请求Token失败，状态码：{response.status_code}")
+            logging.error(f"Failed to get token, status code: {response.status_code}")
             return None
+    except requests.RequestException as e:
+        logging.error(f"Error getting token: {e}")
+        return None
     except Exception as e:
-        print(f"请求Token时出错: {e}")
+        logging.error(f"Unexpected error getting token: {e}")
         return None
 
 def load_token():
