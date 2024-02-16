@@ -6,11 +6,15 @@ import process_poem_db_sql
 
 import os
 
-# 获取当前工作目录的路径
-current_directory = os.getcwd()
+
+# 获取当前文件所在目录的路径（src 目录）
+current_directory = os.path.dirname(os.path.abspath(__file__))
+
+# 获取项目根目录的路径
+project_directory = os.path.dirname(current_directory)
 
 # 构建 token.txt 文件的路径
-TOKEN_FILE = os.path.join(current_directory, 'data', 'token.txt')
+TOKEN_FILE = os.path.join(project_directory, 'data', 'token.txt')
 
 # try:
 #     with open(token_file_path, 'r') as file:
