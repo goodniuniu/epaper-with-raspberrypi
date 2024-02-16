@@ -5,7 +5,7 @@ from pathlib import Path
 import process_poem_db_sql
 
 # 假设这段代码的工作目录是项目根目录
-TOKEN_FILE = Path('data/token.txt')
+TOKEN_FILE = Path('../data/token.txt')
 
 def load_token():
     if TOKEN_FILE.exists():
