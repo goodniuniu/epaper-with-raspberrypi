@@ -3,7 +3,7 @@
 import get_config
 import get_weather
 import get_poem
-import class_poem_api
+# import class_poem_api
 import logging
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
