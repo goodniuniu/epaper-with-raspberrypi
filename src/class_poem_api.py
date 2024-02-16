@@ -85,26 +85,4 @@ class PoemAPI:
             file.write(new_token)
 
 
-# 创建PoemAPI类的实例
-api_url = "https://v2.jinrishici.com/sentence"
-token_url = "https://v2.jinrishici.com/token"
 
-poem_api = PoemAPI(api_url,token_url,)
-
-# 获取诗歌详情
-# 创建PoemAPI类的实例
-api_url = "https://v2.jinrishici.com/sentence"
-token_url = "https://v2.jinrishici.com/token"
-
-poem_api = PoemAPI(api_url, token_url)
-
-# 获取诗歌详情
-if poem_api.get_poem_detail():
-    logging.info("诗歌详情获取成功:")
-    logging.info(f"标题: {poem_api.title}")
-    logging.info(f"朝代: {poem_api.dynasty}")
-    logging.info(f"作者: {poem_api.author}")
-    logging.info("内容:")
-    logging.info(poem_api.full_content)
-else:
-    logging.error("获取诗歌详情失败")
