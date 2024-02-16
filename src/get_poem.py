@@ -26,21 +26,16 @@ logging.info(TOKEN_FILE)
 #     print("Token file not found. Please make sure the file exists.")
 
 def load_token():
-    # 获取文件路径
-    
-    logging.info(TOKEN_FILE)
-
-    # 检查文件是否存在
-    if os.path.exists( TOKEN_FILE):
-        with open( TOKEN_FILE, 'r') as file:
+    try:
+        with open(TOKEN_FILE, 'r') as file:
             token = file.read().strip()
-            return token
-    else:
-        print("Token file not found.")
+        return token
+    except FileNotFoundError:
+        logging.error("Token file not found.")
         return None
-
-
-
+    except Exception as e:
+        logging.error(f"Error loading token: {e}")
+        return None
 
 def get_poem_from_url(api_url, token):
     headers = {'X-User-Token': token}
@@ -81,36 +76,23 @@ def get_token(api_url):
     token = load_token()
     if token:
         return token
-    else:
-        """
-        请求API以获取Token，并将Token存储到文件系统中。
-        
-        参数:
-        - api_url: 获取Token的API的URL。
-        
-        返回:
-        - token: 获取到的Token。
-        """
-        
-        try:
-            # 发起GET请求获取Token
-            response = requests.get(api_url)
-            if response.status_code == 200:
-                # 解析JSON数据获取Token
-                token = response.json()['data']
-                logging.info(token)
-                logging.info(TOKEN_FILE)
-                # 将Token存储到文件中
-                
-                # 修改get_token函数中的文件操作部分
-                with open(TOKEN_FILE, 'w') as file:
-                    file.write(token)                
-                return token
-            else:
-                print(f"请求Token失败，状态码：{response.status_code}")
-                return None
-        except Exception as e:
-            print(f"请求Token时出错: {e}")
+    try:
+        # 发起GET请求获取Token
+        response = requests.get(api_url)
+        response.raise_for_status()  # 在状态码非200时抛出异常
+        data = response.json()
+        if 'data' in data:
+            token = data['data']
+            logging.info(token)
+            # 将Token存储到文件中
+            with open(TOKEN_FILE, 'w') as file:
+                file.write(token)                
+            return token
+        else:
+            logging.error(f"Failed to get token, status code: {response.status_code}")
             return None
+    except Exception as e:
+        logging.error(f"Unexpected error getting token: {e}")
+        return None
 
     
