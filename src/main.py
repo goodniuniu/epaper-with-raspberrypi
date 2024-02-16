@@ -26,7 +26,7 @@ def main():
     api_url = "https://v2.jinrishici.com/sentence"
     token_url = "https://v2.jinrishici.com/token"
 
-    poem_api = class_poem_api.PoemAPI(api_url, token_url)
+    poem_api = class_poem_api.PoemAPI(daily_poem_api_url, poem_token_api_url)
 
     # 获取诗歌详情
     if poem_api.get_poem_detail():
