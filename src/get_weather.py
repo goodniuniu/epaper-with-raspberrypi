@@ -1,6 +1,11 @@
 import requests
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 def fetch_weather(api_key, city):
+    logging.info("def fetch_weather running")   
     url = f"http://api.weatherapi.com/v1/current.json"
     params = {"key": api_key, "q": city, "aqi": "no"}
     try:

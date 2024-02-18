@@ -9,6 +9,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def main():
+    logging.info("main.py running")
     weather_api_key = get_config.get_config_value('WEATHER_API_KEY')
     city_api_key = get_config.get_config_value('CITY_API_KEY')
     poem_token_api_url = get_config.get_config_value('POEM_TOKEN_API_URL')
