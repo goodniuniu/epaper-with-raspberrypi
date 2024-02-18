@@ -1,16 +1,18 @@
 import logging
 from pathlib import Path
 import requests
+from pathlib import Path
 
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 class PoemAPI:
-    def __init__(self, api_url, token_url, token_file='../data/token.txt'):
+    def __init__(self, api_url, token_url):
         self.api_url = api_url
         self.token_url = token_url
-        self.token_file = Path(token_file)
+        self.token_file = Path(__file__).parent.parent / 'data' / 'token.txt'
+        #self.token_file = Path(token_file)
         self.token = self.load_token()
         # 初始化诗歌详情属性
         self.title = None
