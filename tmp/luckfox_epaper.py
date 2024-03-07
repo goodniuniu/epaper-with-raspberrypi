@@ -1,5 +1,8 @@
-from lucky.board import board
-import lucky.libs.touch as touch
+# from lucky.board import board
+# import lucky.libs.touch as touch
+
+from machine import Pin, SPI
+import framebuf
 
 # Display resolution
 EPD_WIDTH       = 212
