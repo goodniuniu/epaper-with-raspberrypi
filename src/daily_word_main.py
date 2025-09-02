@@ -271,6 +271,14 @@ class DailyWordSystem:
             # 获取缓存统计
             cache_stats = self.api_client.get_cache_stats() if self.api_client else {}
             
+            # 获取系统信息（包括IP地址）
+            try:
+                from word_config_rpi import get_system_info
+                sys_info = get_system_info()
+            except Exception as e:
+                self.logger.warning(f"获取系统信息失败: {e}")
+                sys_info = {}
+            
             # 系统状态
             status = {
                 'system': {
@@ -278,6 +286,8 @@ class DailyWordSystem:
                     'version': PROJECT_VERSION,
                     'running': self.running,
                     'timestamp': datetime.now().isoformat(),
+                    'ip_address': sys_info.get('ip_address'),
+                    'cpu_temperature': sys_info.get('cpu_temperature'),
                 },
                 'components': {
                     'api_client': self.api_client is not None,

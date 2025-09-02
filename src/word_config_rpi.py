@@ -244,6 +244,7 @@ def check_environment():
 # 获取系统信息
 def get_system_info():
     """获取系统信息"""
+    from get_ipaddress import get_ip_address
     info = {}
     
     try:
@@ -272,5 +273,12 @@ def get_system_info():
         info['disk_free'] = free
     except:
         info['disk_free'] = None
+    
+    try:
+        # IP地址
+        ip_address = get_ip_address()
+        info['ip_address'] = ip_address
+    except:
+        info['ip_address'] = None
     
     return info

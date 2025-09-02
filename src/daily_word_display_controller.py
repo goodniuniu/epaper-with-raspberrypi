@@ -361,12 +361,31 @@ class DailyWordDisplayController:
     
     def _draw_footer(self, draw: ImageDraw.Draw, content: Dict, left_margin: int, right_margin: int):
         """绘制底部信息"""
+        from daily_word_config import MONITOR_CONFIG
+        from word_config_rpi import get_system_info
+        
         footer_y = self.height - 20
         
         # 绘制日期
         date_str = datetime.now().strftime('%Y-%m-%d')
         date_font = self.fonts['date']
         draw.text((left_margin, footer_y), date_str, font=date_font, fill=0)
+        
+        # 绘制IP地址（如果启用）
+        if MONITOR_CONFIG['monitored_metrics'].get('show_ip_address', False):
+            try:
+                sys_info = get_system_info()
+                ip_address = sys_info.get('ip_address')
+                if ip_address:
+                    ip_text = f"IP: {ip_address}"
+                    
+                    # 计算IP文本位置（居中）
+                    bbox = draw.textbbox((0, 0), ip_text, font=date_font)
+                    ip_width = bbox[2] - bbox[0]
+                    center_x = (self.width - ip_width) // 2
+                    draw.text((center_x, footer_y), ip_text, font=date_font, fill=0)
+            except Exception as e:
+                logger.warning(f"获取IP地址失败: {e}")
         
         # 绘制来源信息（右对齐）
         sources = []

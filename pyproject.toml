@@ -1,0 +1,175 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "daily-word-epaper"
+version = "1.0.0"
+description = "A Raspberry Pi e-paper display system for daily English words and inspirational quotes"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Daily Word Team", email = "team@dailyword.example.com"}
+]
+maintainers = [
+    {name = "Daily Word Team", email = "team@dailyword.example.com"}
+]
+keywords = ["raspberry-pi", "e-paper", "english", "learning", "display"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Education",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Education",
+    "Topic :: System :: Hardware",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "cairocffi>=1.6.1",
+    "CairoSVG>=2.7.1",
+    "certifi>=2024.2.2",
+    "cffi>=1.16.0",
+    "charset-normalizer>=3.3.2",
+    "colorzero>=2.0",
+    "cssselect2>=0.7.0",
+    "defusedxml>=0.7.1",
+    "gpiozero>=2.0",
+    "idna>=3.6",
+    "pillow>=10.2.0",
+    "pycparser>=2.21",
+    "requests>=2.31.0",
+    "RPi.GPIO>=0.7.1",
+    "spidev>=3.6",
+    "tinycss2>=1.2.1",
+    "urllib3>=2.2.0",
+    "webencodings>=0.5.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.10.0",
+    "flake8>=6.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "mypy>=1.0.0",
+]
+docs = [
+    "sphinx>=6.0.0",
+    "sphinx-rtd-theme>=1.2.0",
+    "myst-parser>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-repo/daily-word-epaper"
+Documentation = "https://github.com/your-repo/daily-word-epaper/docs"
+Repository = "https://github.com/your-repo/daily-word-epaper.git"
+Issues = "https://github.com/your-repo/daily-word-epaper/issues"
+Changelog = "https://github.com/your-repo/daily-word-epaper/blob/main/CHANGELOG.md"
+
+[project.scripts]
+daily-word = "src.daily_word_main:main"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+exclude = ["tests*", "docs*"]
+
+# Black 配置
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+# isort 配置
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["src"]
+
+# mypy 配置
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "RPi.*",
+    "spidev.*",
+    "gpiozero.*",
+]
+ignore_missing_imports = true
+
+# pytest 配置
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --strict-config"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "hardware: marks tests that require hardware (deselect with '-m \"not hardware\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+# Coverage 配置
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/env/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]

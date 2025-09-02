@@ -292,6 +292,7 @@ MONITOR_CONFIG = {
         'temperature': True,
         'network_status': True,
         'display_status': True,
+        'show_ip_address': True,    # 显示IP地址
     },
     
     'alert_thresholds': {
