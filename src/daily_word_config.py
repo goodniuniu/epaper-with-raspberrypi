@@ -88,13 +88,27 @@ WORD_API_CONFIG = {
     },
     
     'fallback': {
-        'name': 'Dictionary API',
+        'name': 'Free Dictionary API',
         'base_url': 'https://api.dictionaryapi.dev/api/v2',
         'endpoints': {
             'word_definition': '/entries/en/{word}',
         },
-        'timeout': 10,
+        'timeout': 15,
+        'retry_count': 3,
+    },
+    
+    'secondary_fallback': {
+        'name': 'WordsAPI (RapidAPI)',
+        'base_url': 'https://wordsapiv1.p.rapidapi.com',
+        'endpoints': {
+            'word_definition': '/words/{word}',
+        },
+        'timeout': 15,
         'retry_count': 2,
+        'headers': {
+            'X-RapidAPI-Host': 'wordsapiv1.p.rapidapi.com',
+            'X-RapidAPI-Key': None  # 需要API密钥
+        }
     }
 }
 

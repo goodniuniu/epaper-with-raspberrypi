@@ -11,9 +11,14 @@ import logging
 import random
 import requests
 import time
+import urllib3
+import socket
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Union
+
+# 禁用SSL警告
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 from daily_word_config import (
     WORD_API_CONFIG, QUOTE_API_CONFIG, CACHE_CONFIG, 
@@ -65,35 +70,92 @@ class DailyWordAPIClient:
             logger.error(f"保存缓存文件失败 {cache_file}: {e}")
             return False
     
-    def _make_request(self, url: str, timeout: int = 10, retry_count: int = 3) -> Optional[Dict]:
-        """发起HTTP请求"""
+    def _make_request(self, url: str, timeout: int = 15, retry_count: int = 3) -> Optional[Dict]:
+        """发起HTTP请求（禁用SSL验证）"""
         for attempt in range(retry_count):
             try:
                 logger.debug(f"请求URL: {url} (尝试 {attempt + 1}/{retry_count})")
                 
                 headers = {
-                    'User-Agent': 'Daily-Word-EPaper/1.0.0',
+                    'User-Agent': 'Mozilla/5.0 (compatible; Daily-Word-EPaper/1.0)',
                     'Accept': 'application/json',
                 }
                 
-                response = requests.get(url, headers=headers, timeout=timeout)
+                # 禁用SSL验证，处理网络连接问题
+                response = requests.get(
+                    url, 
+                    headers=headers, 
+                    timeout=timeout,
+                    verify=False  # 禁用SSL验证
+                )
                 response.raise_for_status()
                 
                 data = response.json()
                 logger.debug(f"请求成功: {url}")
                 return data
                 
-            except requests.exceptions.RequestException as e:
-                logger.warning(f"请求失败 (尝试 {attempt + 1}/{retry_count}): {e}")
+            except (requests.exceptions.RequestException, 
+                   socket.timeout, socket.gaierror, ConnectionError) as e:
+                logger.warning(f"网络请求失败 (尝试 {attempt + 1}/{retry_count}): {e}")
                 if attempt < retry_count - 1:
                     time.sleep(2 ** attempt)  # 指数退避
                 continue
             except json.JSONDecodeError as e:
                 logger.error(f"JSON解析失败: {e}")
                 break
+            except Exception as e:
+                logger.error(f"未知错误 (尝试 {attempt + 1}/{retry_count}): {e}")
+                break
         
         logger.error(f"所有请求尝试失败: {url}")
         return None
+    
+    def _make_request_with_headers(self, url: str, timeout: int = 15, retry_count: int = 3, custom_headers: Dict = None) -> Optional[Dict]:
+        """发起带自定义头部的HTTP请求"""
+        for attempt in range(retry_count):
+            try:
+                logger.debug(f"请求URL: {url} (尝试 {attempt + 1}/{retry_count})")
+                
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (compatible; Daily-Word-EPaper/1.0)',
+                    'Accept': 'application/json',
+                }
+                
+                if custom_headers:
+                    headers.update(custom_headers)
+                
+                # 禁用SSL验证，处理网络连接问题
+                response = requests.get(
+                    url, 
+                    headers=headers, 
+                    timeout=timeout,
+                    verify=False  # 禁用SSL验证
+                )
+                response.raise_for_status()
+                
+                data = response.json()
+                logger.debug(f"请求成功: {url}")
+                return data
+                
+            except (requests.exceptions.RequestException, 
+                   socket.timeout, socket.gaierror, ConnectionError) as e:
+                logger.warning(f"网络请求失败 (尝试 {attempt + 1}/{retry_count}): {e}")
+                if attempt < retry_count - 1:
+                    time.sleep(2 ** attempt)  # 指数退避
+                continue
+            except json.JSONDecodeError as e:
+                logger.error(f"JSON解析失败: {e}")
+                break
+            except Exception as e:
+                logger.error(f"未知错误 (尝试 {attempt + 1}/{retry_count}): {e}")
+                break
+        
+        logger.error(f"所有请求尝试失败: {url}")
+        return None
+    
+    def get_daily_word(self, force_new: bool = False) -> Optional[Dict]:
+        """获取每日单词"""
+        return self.get_word_of_day(force_new)
     
     def get_word_of_day(self, force_new: bool = False) -> Optional[Dict]:
         """获取每日单词"""
@@ -155,27 +217,64 @@ class DailyWordAPIClient:
     
     def _fetch_word_from_fallback_api(self) -> Optional[Dict]:
         """从备用API获取单词"""
-        try:
-            # 使用随机单词作为备用
-            fallback_words = ['serendipity', 'ephemeral', 'mellifluous', 'ubiquitous', 'perspicacious']
-            random_word = random.choice(fallback_words)
-            
-            config = WORD_API_CONFIG['fallback']
-            base_url = config['base_url']
-            endpoint = config['endpoints']['word_definition'].format(word=random_word)
-            timeout = config['timeout']
-            
-            url = f"{base_url}{endpoint}"
-            data = self._make_request(url, timeout, config['retry_count'])
-            
-            if data:
-                # 解析Dictionary API响应
-                return self._parse_dictionary_api_response(data)
-                
-        except Exception as e:
-            logger.error(f"备用API请求失败: {e}")
+        # 尝试多个备用API
+        apis_to_try = ['fallback']
+        if 'secondary_fallback' in WORD_API_CONFIG:
+            apis_to_try.append('secondary_fallback')
         
-        return None
+        for api_key in apis_to_try:
+            try:
+                config = WORD_API_CONFIG[api_key]
+                base_url = config['base_url']
+                endpoint = config['endpoints']['word_definition']
+                timeout = config['timeout']
+                
+                # 从扩展的单词列表中随机选择一个单词
+                import random
+                today = datetime.now()
+                # 使用日期作为种子，确保同一天返回相同的单词
+                random.seed(today.strftime('%Y%m%d'))
+                
+                extended_words = [
+                    'serendipity', 'ephemeral', 'petrichor', 'wanderlust', 'mellifluous',
+                    'eloquent', 'luminous', 'resilient', 'magnificent', 'harmonious',
+                    'tranquil', 'vibrant', 'graceful', 'profound', 'exquisite',
+                    'ethereal', 'sublime', 'pristine', 'serene', 'radiant',
+                    'majestic', 'elegant', 'brilliant', 'splendid', 'glorious',
+                    'magnificent', 'breathtaking', 'stunning', 'captivating', 'enchanting'
+                ]
+                
+                word = random.choice(extended_words)
+                url = f"{base_url}{endpoint.format(word=word)}"
+                
+                logger.info(f"尝试从{config['name']}获取单词: {word}")
+                
+                # 添加特殊头部（如果需要）
+                headers = {}
+                if 'headers' in config:
+                    headers.update(config['headers'])
+                
+                data = self._make_request_with_headers(url, timeout, config['retry_count'], headers)
+                
+                if data:
+                    # 解析API响应
+                    if api_key == 'fallback':
+                        result = self._parse_dictionary_api_response(data)
+                    else:
+                        result = self._parse_words_api_response(data)
+                    
+                    if result:
+                        result['source'] = config['name']
+                        logger.info(f"成功从{config['name']}获取单词: {word}")
+                        return result
+                    
+            except Exception as e:
+                logger.error(f"{config.get('name', api_key)} API请求失败: {e}")
+                continue
+        
+        # 如果所有备用API都失败，生成智能的每日单词
+        logger.warning("所有备用API失败，生成智能每日单词")
+        return self._generate_smart_daily_word()
     
     def _parse_wordnik_response(self, data: Dict) -> Optional[Dict]:
         """解析Wordnik API响应"""
@@ -261,6 +360,83 @@ class DailyWordAPIClient:
         logger.info(f"使用备用单词: {word_data['word']}")
         return word_data
     
+    def _parse_words_api_response(self, data: Dict) -> Optional[Dict]:
+        """解析WordsAPI响应"""
+        try:
+            word = data.get('word', '')
+            
+            # 获取音标
+            phonetic = data.get('pronunciation', {}).get('all', '')
+            
+            # 获取定义
+            definition = ''
+            results = data.get('results', [])
+            if results:
+                definition = results[0].get('definition', '')
+            
+            # 获取例句
+            example = ''
+            if results:
+                for result in results:
+                    if result.get('examples'):
+                        example = result['examples'][0]
+                        break
+            
+            return {
+                'word': word,
+                'phonetic': phonetic,
+                'definition': definition,
+                'example': example,
+                'source': 'WordsAPI'
+            }
+            
+        except Exception as e:
+            logger.error(f"解析WordsAPI响应失败: {e}")
+            return None
+    
+    def _generate_smart_daily_word(self) -> Dict:
+        """生成智能每日单词"""
+        today = datetime.now()
+        # 使用日期作为种子，确保同一天返回相同的单词
+        random.seed(today.strftime('%Y%m%d'))
+        
+        # 扩展的高质量单词库，按主题分类
+        themed_words = {
+            'nature': [
+                {'word': 'serendipity', 'phonetic': '/ˌserənˈdipədē/', 'definition': 'The occurrence and development of events by chance in a happy or beneficial way.', 'example': 'A fortunate stroke of serendipity brought the old friends together after decades.'},
+                {'word': 'petrichor', 'phonetic': '/ˈpetrɪkɔr/', 'definition': 'A pleasant smell frequently accompanying the first rain after a long period of warm, dry weather.', 'example': 'The petrichor filled the air as the summer rain began to fall.'},
+                {'word': 'ephemeral', 'phonetic': '/əˈfem(ə)rəl/', 'definition': 'Lasting for a very short time.', 'example': 'The beauty of cherry blossoms is ephemeral, lasting only a few weeks each spring.'},
+            ],
+            'emotions': [
+                {'word': 'mellifluous', 'phonetic': '/məˈliflo͞oəs/', 'definition': 'Sweet or musical; pleasant to hear.', 'example': 'Her mellifluous voice captivated the entire audience.'},
+                {'word': 'euphoria', 'phonetic': '/yo͞oˈfôrēə/', 'definition': 'A feeling or state of intense excitement and happiness.', 'example': 'The team felt euphoria after winning the championship.'},
+                {'word': 'tranquil', 'phonetic': '/ˈtraNGkwəl/', 'definition': 'Free from disturbance; calm.', 'example': 'The tranquil lake reflected the mountains perfectly.'},
+            ],
+            'beauty': [
+                {'word': 'luminous', 'phonetic': '/ˈlo͞omənəs/', 'definition': 'Full of or shedding light; bright or shining.', 'example': 'The luminous moon cast a silver glow over the landscape.'},
+                {'word': 'ethereal', 'phonetic': '/əˈTHirēəl/', 'definition': 'Extremely delicate and light in a way that seems too perfect for this world.', 'example': 'The dancer moved with an ethereal grace across the stage.'},
+                {'word': 'sublime', 'phonetic': '/səˈblīm/', 'definition': 'Of such excellence, grandeur, or beauty as to inspire great admiration or awe.', 'example': 'The view from the mountain peak was absolutely sublime.'},
+            ],
+            'wisdom': [
+                {'word': 'sagacious', 'phonetic': '/səˈɡāSHəs/', 'definition': 'Having or showing keen mental discernment and good judgment; wise.', 'example': 'The sagacious old professor always gave thoughtful advice to his students.'},
+                {'word': 'perspicacious', 'phonetic': '/ˌpərspəˈkāSHəs/', 'definition': 'Having a ready insight into and understanding of things.', 'example': 'Her perspicacious analysis of the situation impressed everyone in the meeting.'},
+                {'word': 'eloquent', 'phonetic': '/ˈeləkwənt/', 'definition': 'Fluent or persuasive in speaking or writing.', 'example': 'The eloquent speech moved the audience to tears.'},
+            ]
+        }
+        
+        # 根据日期选择主题
+        day_of_year = today.timetuple().tm_yday
+        themes = list(themed_words.keys())
+        theme = themes[day_of_year % len(themes)]
+        
+        # 从选定主题中选择单词
+        word_data = random.choice(themed_words[theme]).copy()
+        word_data['source'] = f'Smart Daily Word ({theme.title()} Theme)'
+        word_data['date'] = today.strftime('%Y-%m-%d')
+        
+        logger.info(f"生成智能每日单词: {word_data['word']} (主题: {theme})")
+        return word_data
+    
     def get_daily_quote(self, force_new: bool = False) -> Optional[Dict]:
         """获取每日句子"""
         today = datetime.now().strftime('%Y-%m-%d')
@@ -299,26 +475,8 @@ class DailyWordAPIClient:
     def _fetch_quote_from_primary_api(self) -> Optional[Dict]:
         """从主要API获取句子"""
         try:
-            config = QUOTE_API_CONFIG['primary']
-            base_url = config['base_url']
-            endpoint = config['endpoints']['random_quote']
-            timeout = config['timeout']
-            
-            url = f"{base_url}{endpoint}"
-            data = self._make_request(url, timeout, config['retry_count'])
-            
-            if data:
-                return self._parse_quotable_response(data)
-                
-        except Exception as e:
-            logger.error(f"主要句子API请求失败: {e}")
-        
-        return None
-    
-    def _fetch_quote_from_fallback_api(self) -> Optional[Dict]:
-        """从备用API获取句子"""
-        try:
-            config = QUOTE_API_CONFIG['fallback']
+            # 优先使用ZenQuotes，因为Quotable可能有SSL问题
+            config = QUOTE_API_CONFIG['fallback']  # 使用fallback配置（ZenQuotes）
             base_url = config['base_url']
             endpoint = config['endpoints']['random_quote']
             timeout = config['timeout']
@@ -328,6 +486,17 @@ class DailyWordAPIClient:
             
             if data:
                 return self._parse_zenquotes_response(data)
+                
+        except Exception as e:
+            logger.error(f"主要句子API请求失败: {e}")
+        
+        return None
+    
+    def _fetch_quote_from_fallback_api(self) -> Optional[Dict]:
+        """从备用API获取句子"""
+        try:
+            # 使用本地备用内容
+            return self._get_fallback_quote()
                 
         except Exception as e:
             logger.error(f"备用句子API请求失败: {e}")

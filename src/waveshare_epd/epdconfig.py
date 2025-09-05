@@ -264,20 +264,96 @@ class SunriseX3:
         self.GPIO.cleanup([self.RST_PIN, self.DC_PIN, self.CS_PIN, self.BUSY_PIN], self.PWR_PIN)
 
 
-if sys.version_info[0] == 2:
-    process = subprocess.Popen("cat /proc/cpuinfo | grep Raspberry", shell=True, stdout=subprocess.PIPE)
-else:
-    process = subprocess.Popen("cat /proc/cpuinfo | grep Raspberry", shell=True, stdout=subprocess.PIPE, text=True)
-output, _ = process.communicate()
-if sys.version_info[0] == 2:
-    output = output.decode(sys.stdout.encoding)
+# 改进的系统检测逻辑
+def detect_platform():
+    """检测当前运行平台"""
+    try:
+        # 首先检查是否为树莓派
+        if sys.version_info[0] == 2:
+            process = subprocess.Popen("cat /proc/cpuinfo | grep Raspberry", shell=True, stdout=subprocess.PIPE)
+        else:
+            process = subprocess.Popen("cat /proc/cpuinfo | grep Raspberry", shell=True, stdout=subprocess.PIPE, text=True)
+        output, _ = process.communicate()
+        if sys.version_info[0] == 2:
+            output = output.decode(sys.stdout.encoding)
+        
+        if "Raspberry" in output:
+            return "raspberry"
+        
+        # 检查是否为SunriseX3
+        if os.path.exists('/sys/bus/platform/drivers/gpio-x3'):
+            return "sunrise"
+        
+        # 检查是否为Jetson (通过检查特定文件或目录)
+        jetson_indicators = [
+            '/sys/firmware/devicetree/base/model',
+            '/proc/device-tree/model'
+        ]
+        
+        for indicator in jetson_indicators:
+            if os.path.exists(indicator):
+                try:
+                    with open(indicator, 'r') as f:
+                        content = f.read().lower()
+                        if 'jetson' in content or 'nvidia' in content:
+                            return "jetson"
+                except:
+                    pass
+        
+        # 额外的树莓派检测方法
+        rpi_indicators = [
+            '/proc/device-tree/model',
+            '/sys/firmware/devicetree/base/model'
+        ]
+        
+        for indicator in rpi_indicators:
+            if os.path.exists(indicator):
+                try:
+                    with open(indicator, 'r') as f:
+                        content = f.read().lower()
+                        if 'raspberry' in content:
+                            return "raspberry"
+                except:
+                    pass
+        
+        # 检查GPIO相关文件 (树莓派特有)
+        if os.path.exists('/sys/class/gpio') and os.path.exists('/dev/gpiomem'):
+            return "raspberry"
+        
+        # 默认返回树莓派 (因为这是最常见的情况)
+        logger.warning("无法确定平台类型，默认使用树莓派模式")
+        return "raspberry"
+        
+    except Exception as e:
+        logger.warning(f"平台检测失败: {e}，默认使用树莓派模式")
+        return "raspberry"
 
-if "Raspberry" in output:
-    implementation = RaspberryPi()
-elif os.path.exists('/sys/bus/platform/drivers/gpio-x3'):
-    implementation = SunriseX3()
-else:
-    implementation = JetsonNano()
+# 根据检测结果选择实现
+platform = detect_platform()
+
+try:
+    if platform == "raspberry":
+        implementation = RaspberryPi()
+        logger.info("使用树莓派GPIO实现")
+    elif platform == "sunrise":
+        implementation = SunriseX3()
+        logger.info("使用SunriseX3 GPIO实现")
+    elif platform == "jetson":
+        implementation = JetsonNano()
+        logger.info("使用Jetson Nano GPIO实现")
+    else:
+        # 备用方案：强制使用树莓派
+        implementation = RaspberryPi()
+        logger.warning("未知平台，强制使用树莓派GPIO实现")
+except Exception as e:
+    logger.error(f"GPIO实现初始化失败: {e}")
+    # 最后的备用方案：尝试树莓派实现
+    try:
+        implementation = RaspberryPi()
+        logger.warning("使用备用树莓派GPIO实现")
+    except Exception as e2:
+        logger.error(f"备用GPIO实现也失败: {e2}")
+        raise RuntimeError(f"无法初始化任何GPIO实现: {e}, {e2}")
 
 for func in [x for x in dir(implementation) if not x.startswith('_')]:
     setattr(sys.modules[__name__], func, getattr(implementation, func))
