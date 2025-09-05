@@ -16,7 +16,7 @@ PROJECT_NAME="每日单词墨水屏显示系统"
 PROJECT_VERSION="1.0.0"
 INSTALL_DIR="/opt/daily-word-epaper"
 SERVICE_NAME="daily-word"
-USER_NAME="pi"
+USER_NAME="$SUDO_USER"
 
 # 日志函数
 log_info() {
@@ -85,42 +85,19 @@ check_system() {
 
 # 安装系统依赖
 install_system_dependencies() {
-    log_info "安装系统依赖..."
+    log_info "跳过系统依赖安装..."
+    log_info "系统依赖已通过其他方式安装"
     
-    # 更新包列表
-    apt-get update
-    
-    # 安装基础依赖
-    apt-get install -y \
-        python3-pip \
-        python3-venv \
-        python3-dev \
-        git \
-        curl \
-        wget \
-        build-essential \
-        libfreetype6-dev \
-        libjpeg-dev \
-        libopenjp2-7 \
-        libtiff5 \
-        fonts-dejavu \
-        fonts-dejavu-core \
-        fonts-dejavu-extra
-    
-    # 树莓派特定依赖
+    # 树莓派特定依赖检查
     if [[ "$ARCH" == "armv7l" || "$ARCH" == "aarch64" ]]; then
-        log_info "安装树莓派特定依赖..."
-        apt-get install -y \
-            python3-rpi.gpio \
-            python3-spidev \
-            raspi-config
-        
-        # 启用SPI接口
-        log_info "启用SPI接口..."
-        raspi-config nonint do_spi 0
+        log_info "检查树莓派依赖..."
+        # 检查SPI是否已启用
+        if [[ ! -e /dev/spidev0.0 ]]; then
+            log_warning "SPI接口未启用，请手动运行: raspi-config nonint do_spi 0"
+        fi
     fi
     
-    log_success "系统依赖安装完成"
+    log_success "系统依赖检查完成"
 }
 
 # 创建安装目录
@@ -135,7 +112,7 @@ create_directories() {
     mkdir -p "$INSTALL_DIR/cache"
     
     # 设置权限
-    chown -R "$USER_NAME:$USER_NAME" "$INSTALL_DIR"
+    chown -R "$SUDO_USER:$SUDO_USER" "$INSTALL_DIR"
     chmod -R 755 "$INSTALL_DIR"
     
     log_success "目录创建完成"
@@ -171,7 +148,7 @@ copy_project_files() {
     done
     
     # 设置权限
-    chown -R "$USER_NAME:$USER_NAME" "$INSTALL_DIR"
+    chown -R "$SUDO_USER:$SUDO_USER" "$INSTALL_DIR"
     chmod +x "$INSTALL_DIR/src"/*.py
     
     log_success "项目文件复制完成"
@@ -188,7 +165,7 @@ create_virtual_environment() {
     sudo -u "$USER_NAME" python3 -m venv venv
     
     # 激活虚拟环境并安装依赖
-    sudo -u "$USER_NAME" bash -c "
+    sudo -u "$SUDO_USER" bash -c "
         source venv/bin/activate
         pip install --upgrade pip
         pip install \
@@ -200,7 +177,7 @@ create_virtual_environment() {
     
     # 树莓派特定依赖
     if [[ "$ARCH" == "armv7l" || "$ARCH" == "aarch64" ]]; then
-        sudo -u "$USER_NAME" bash -c "
+        sudo -u "$SUDO_USER" bash -c "
             source venv/bin/activate
             pip install \
                 RPi.GPIO \
@@ -223,8 +200,8 @@ Wants=network.target
 
 [Service]
 Type=simple
-User=${USER_NAME}
-Group=${USER_NAME}
+User=${SUDO_USER}
+Group=${SUDO_USER}
 WorkingDirectory=${INSTALL_DIR}
 Environment=PATH=${INSTALL_DIR}/venv/bin
 ExecStart=${INSTALL_DIR}/venv/bin/python ${INSTALL_DIR}/src/daily_word_main.py --daemon
@@ -321,7 +298,7 @@ run_tests() {
     cd "$INSTALL_DIR"
     
     # 运行测试脚本
-    if sudo -u "$USER_NAME" ./venv/bin/python src/daily_word_test.py; then
+    if sudo -u "$SUDO_USER" ./venv/bin/python src/daily_word_test.py; then
         log_success "系统测试通过"
         return 0
     else

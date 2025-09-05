@@ -23,7 +23,18 @@ from daily_word_config import (
     FEATURE_FLAGS, DEBUG_CONFIG, DATA_DIR, LOGS_DIR
 )
 from daily_word_api_client import DailyWordAPIClient
-from daily_word_display_controller import DailyWordDisplayController
+
+# 尝试导入新的显示控制器，如果失败则使用原来的
+try:
+    from daily_word_epaper_controller import DailyWordEPaperController as DisplayController
+    DISPLAY_TYPE = "epaper"
+except ImportError:
+    try:
+        from daily_word_display_epaper import DailyWordEPaperDisplay as DisplayController
+        DISPLAY_TYPE = "epaper_old"
+    except ImportError:
+        from daily_word_display_controller import DailyWordDisplayController as DisplayController
+        DISPLAY_TYPE = "original"
 
 class DailyWordSystem:
     """每日单词系统主类"""
@@ -46,8 +57,8 @@ class DailyWordSystem:
         
         try:
             self.api_client = DailyWordAPIClient()
-            self.display_controller = DailyWordDisplayController()
-            self.logger.info("系统组件初始化完成")
+            self.display_controller = DisplayController()
+            self.logger.info(f"系统组件初始化完成 (显示类型: {DISPLAY_TYPE})")
         except Exception as e:
             self.logger.error(f"系统初始化失败: {e}")
             raise
@@ -120,7 +131,10 @@ class DailyWordSystem:
                 return False
             
             # 显示内容
-            self.display_controller.display_content(content)
+            if DISPLAY_TYPE in ["epaper", "epaper_old"]:
+                self.display_controller.display_daily_content(content)
+            else:
+                self.display_controller.display_content(content)
             
             # 记录更新信息
             self._log_update_info(content)
@@ -176,7 +190,10 @@ class DailyWordSystem:
             
             # 测试显示控制器
             self.logger.info("测试显示控制器...")
-            self.display_controller.display_content(test_content)
+            if DISPLAY_TYPE in ["epaper", "epaper_old"]:
+                self.display_controller.display_daily_content(test_content)
+            else:
+                self.display_controller.display_content(test_content)
             self.logger.info("显示控制器测试通过")
             
             self.logger.info("系统测试完成")

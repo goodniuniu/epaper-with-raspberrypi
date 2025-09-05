@@ -210,7 +210,7 @@ THEME_CONFIG = {
 
 # 更新策略配置
 UPDATE_CONFIG = {
-    'mode': 'scheduled',  # 更新模式: scheduled, interval, manual
+    'mode': 'interval',  # 更新模式: scheduled, interval, manual - 改为间隔模式
     
     # 定时更新配置
     'scheduled': {
@@ -219,11 +219,11 @@ UPDATE_CONFIG = {
         'random_delay': 300,                          # 随机延迟(秒)，避免同时请求
     },
     
-    # 间隔更新配置
+    # 间隔更新配置 - 每10分钟更新
     'interval': {
-        'update_interval': 3600,  # 更新间隔(秒)
-        'min_interval': 1800,     # 最小间隔(秒)
-        'max_interval': 7200,     # 最大间隔(秒)
+        'update_interval': 600,   # 更新间隔(秒) - 10分钟
+        'min_interval': 300,      # 最小间隔(秒) - 5分钟
+        'max_interval': 1800,     # 最大间隔(秒) - 30分钟
     },
     
     # 内容更新策略
