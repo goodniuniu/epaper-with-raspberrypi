@@ -44,6 +44,14 @@ class DailyWordAPIClient:
         self.word_cache = self._load_cache(self.word_cache_file)
         self.quote_cache = self._load_cache(self.quote_cache_file)
         
+        # 初始化词汇库管理器
+        try:
+            from daily_word_vocabulary_manager import VocabularyManager
+            self.vocab_manager = VocabularyManager()
+        except ImportError as e:
+            logger.warning(f"词汇库管理器导入失败: {e}")
+            self.vocab_manager = None
+        
         logger.info("每日单词API客户端初始化完成")
     
     def _load_cache(self, cache_file: Path) -> Dict:
@@ -396,45 +404,43 @@ class DailyWordAPIClient:
     
     def _generate_smart_daily_word(self) -> Dict:
         """生成智能每日单词"""
+        # 优先使用词汇库管理器
+        if self.vocab_manager:
+            try:
+                # 获取随机单词
+                word_data = self.vocab_manager.get_random_word()
+                if word_data:
+                    logger.info(f"从词汇库获取单词: {word_data['word']} (来源: {word_data.get('source', 'Unknown')})")
+                    return word_data
+            except Exception as e:
+                logger.warning(f"词汇库管理器获取单词失败: {e}")
+        
+        # 备用：使用内置单词库
         today = datetime.now()
-        # 使用日期作为种子，确保同一天返回相同的单词
-        random.seed(today.strftime('%Y%m%d'))
         
-        # 扩展的高质量单词库，按主题分类
-        themed_words = {
-            'nature': [
-                {'word': 'serendipity', 'phonetic': '/ˌserənˈdipədē/', 'definition': 'The occurrence and development of events by chance in a happy or beneficial way.', 'example': 'A fortunate stroke of serendipity brought the old friends together after decades.'},
-                {'word': 'petrichor', 'phonetic': '/ˈpetrɪkɔr/', 'definition': 'A pleasant smell frequently accompanying the first rain after a long period of warm, dry weather.', 'example': 'The petrichor filled the air as the summer rain began to fall.'},
-                {'word': 'ephemeral', 'phonetic': '/əˈfem(ə)rəl/', 'definition': 'Lasting for a very short time.', 'example': 'The beauty of cherry blossoms is ephemeral, lasting only a few weeks each spring.'},
-            ],
-            'emotions': [
-                {'word': 'mellifluous', 'phonetic': '/məˈliflo͞oəs/', 'definition': 'Sweet or musical; pleasant to hear.', 'example': 'Her mellifluous voice captivated the entire audience.'},
-                {'word': 'euphoria', 'phonetic': '/yo͞oˈfôrēə/', 'definition': 'A feeling or state of intense excitement and happiness.', 'example': 'The team felt euphoria after winning the championship.'},
-                {'word': 'tranquil', 'phonetic': '/ˈtraNGkwəl/', 'definition': 'Free from disturbance; calm.', 'example': 'The tranquil lake reflected the mountains perfectly.'},
-            ],
-            'beauty': [
-                {'word': 'luminous', 'phonetic': '/ˈlo͞omənəs/', 'definition': 'Full of or shedding light; bright or shining.', 'example': 'The luminous moon cast a silver glow over the landscape.'},
-                {'word': 'ethereal', 'phonetic': '/əˈTHirēəl/', 'definition': 'Extremely delicate and light in a way that seems too perfect for this world.', 'example': 'The dancer moved with an ethereal grace across the stage.'},
-                {'word': 'sublime', 'phonetic': '/səˈblīm/', 'definition': 'Of such excellence, grandeur, or beauty as to inspire great admiration or awe.', 'example': 'The view from the mountain peak was absolutely sublime.'},
-            ],
-            'wisdom': [
-                {'word': 'sagacious', 'phonetic': '/səˈɡāSHəs/', 'definition': 'Having or showing keen mental discernment and good judgment; wise.', 'example': 'The sagacious old professor always gave thoughtful advice to his students.'},
-                {'word': 'perspicacious', 'phonetic': '/ˌpərspəˈkāSHəs/', 'definition': 'Having a ready insight into and understanding of things.', 'example': 'Her perspicacious analysis of the situation impressed everyone in the meeting.'},
-                {'word': 'eloquent', 'phonetic': '/ˈeləkwənt/', 'definition': 'Fluent or persuasive in speaking or writing.', 'example': 'The eloquent speech moved the audience to tears.'},
-            ]
-        }
+        # 使用时间戳作为种子，确保真正随机
+        random.seed(int(time.time() * 1000000) % 1000000)
         
-        # 根据日期选择主题
-        day_of_year = today.timetuple().tm_yday
-        themes = list(themed_words.keys())
-        theme = themes[day_of_year % len(themes)]
+        # 简化的高质量单词库
+        fallback_words = [
+            {'word': 'serendipity', 'phonetic': '/ˌserənˈdipədē/', 'definition': 'The occurrence and development of events by chance in a happy or beneficial way.', 'example': 'A fortunate stroke of serendipity brought the old friends together after decades.'},
+            {'word': 'petrichor', 'phonetic': '/ˈpetrɪkɔr/', 'definition': 'A pleasant smell frequently accompanying the first rain after a long period of warm, dry weather.', 'example': 'The petrichor filled the air as the summer rain began to fall.'},
+            {'word': 'ephemeral', 'phonetic': '/əˈfem(ə)rəl/', 'definition': 'Lasting for a very short time.', 'example': 'The beauty of cherry blossoms is ephemeral, lasting only a few weeks each spring.'},
+            {'word': 'luminous', 'phonetic': '/ˈlo͞omənəs/', 'definition': 'Full of or shedding light; bright or shining.', 'example': 'The luminous moon cast a silver glow over the landscape.'},
+            {'word': 'ethereal', 'phonetic': '/əˈTHirēəl/', 'definition': 'Extremely delicate and light in a way that seems too perfect for this world.', 'example': 'The dancer moved with an ethereal grace across the stage.'},
+            {'word': 'sublime', 'phonetic': '/səˈblīm/', 'definition': 'Of such excellence, grandeur, or beauty as to inspire great admiration or awe.', 'example': 'The view from the mountain peak was absolutely sublime.'},
+            {'word': 'sagacious', 'phonetic': '/səˈɡāSHəs/', 'definition': 'Having or showing keen mental discernment and good judgment; wise.', 'example': 'The sagacious old professor always gave thoughtful advice to his students.'},
+            {'word': 'eloquent', 'phonetic': '/ˈeləkwənt/', 'definition': 'Fluent or persuasive in speaking or writing.', 'example': 'The eloquent speech moved the audience to tears.'},
+            {'word': 'tranquil', 'phonetic': '/ˈtraNGkwəl/', 'definition': 'Free from disturbance; calm.', 'example': 'The tranquil lake reflected the mountains perfectly.'},
+            {'word': 'euphoria', 'phonetic': '/yo͞oˈfôrēə/', 'definition': 'A feeling or state of intense excitement and happiness.', 'example': 'The team felt euphoria after winning the championship.'},
+        ]
         
-        # 从选定主题中选择单词
-        word_data = random.choice(themed_words[theme]).copy()
-        word_data['source'] = f'Smart Daily Word ({theme.title()} Theme)'
+        # 随机选择单词
+        word_data = random.choice(fallback_words).copy()
+        word_data['source'] = 'Fallback Smart Word'
         word_data['date'] = today.strftime('%Y-%m-%d')
         
-        logger.info(f"生成智能每日单词: {word_data['word']} (主题: {theme})")
+        logger.info(f"使用备用单词库: {word_data['word']}")
         return word_data
     
     def get_daily_quote(self, force_new: bool = False) -> Optional[Dict]:

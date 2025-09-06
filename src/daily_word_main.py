@@ -23,6 +23,7 @@ from daily_word_config import (
     FEATURE_FLAGS, DEBUG_CONFIG, DATA_DIR, LOGS_DIR
 )
 from daily_word_api_client import DailyWordAPIClient
+from daily_word_file_manager import DailyWordFileManager
 
 # 尝试导入新的显示控制器，如果失败则使用原来的
 try:
@@ -48,6 +49,7 @@ class DailyWordSystem:
         
         # 初始化组件
         self.api_client = None
+        self.file_manager = None
         self.display_controller = None
         self.running = False
         
@@ -56,6 +58,7 @@ class DailyWordSystem:
         signal.signal(signal.SIGTERM, self._signal_handler)
         
         try:
+            self.file_manager = DailyWordFileManager()
             self.api_client = DailyWordAPIClient()
             self.display_controller = DisplayController()
             self.logger.info(f"系统组件初始化完成 (显示类型: {DISPLAY_TYPE})")
@@ -123,12 +126,43 @@ class DailyWordSystem:
         try:
             self.logger.info("开始更新显示内容...")
             
-            # 获取内容
-            content = self.api_client.get_daily_content(force_new=force_new)
+            # 检查是否需要强制更新或内容已过期
+            if not force_new and self.file_manager.is_content_current():
+                self.logger.info("使用当前有效的文件内容")
+                content = self.file_manager.load_current_content()
+                if content:
+                    # 显示内容
+                    if DISPLAY_TYPE in ["epaper", "epaper_old"]:
+                        self.display_controller.display_daily_content(content)
+                    else:
+                        self.display_controller.display_content(content)
+                    
+                    self._log_update_info(content)
+                    self.logger.info("显示内容更新完成（使用文件缓存）")
+                    return True
+            
+            # 获取新内容
+            self.logger.info("获取新的每日内容...")
+            content = self.api_client.get_daily_content(force_new=True)
             
             if not content or (not content.get('word') and not content.get('quote')):
-                self.logger.warning("未获取到有效内容")
-                return False
+                self.logger.warning("未获取到有效内容，尝试使用文件缓存")
+                # 尝试使用文件中的内容
+                cached_content = self.file_manager.load_current_content()
+                if cached_content:
+                    content = cached_content
+                    self.logger.info("使用文件缓存内容")
+                else:
+                    self.logger.error("无法获取任何有效内容")
+                    return False
+            else:
+                # 保存新内容到文件
+                word_data = content.get('word', {})
+                quote_data = content.get('quote', {})
+                if self.file_manager.save_current_content(word_data, quote_data):
+                    self.logger.info("新内容已保存到文件")
+                else:
+                    self.logger.warning("保存内容到文件失败")
             
             # 显示内容
             if DISPLAY_TYPE in ["epaper", "epaper_old"]:
@@ -161,6 +195,34 @@ class DailyWordSystem:
             quote_info = f"{quote_text} - {quote.get('author', 'Unknown')} ({quote.get('source', 'Unknown')})"
         
         self.logger.info(f"更新内容 - 单词: {word_info}, 句子: {quote_info}")
+    
+    def display_from_file(self) -> bool:
+        """从文件读取内容并显示到墨水屏"""
+        try:
+            self.logger.info("从文件读取内容进行显示...")
+            
+            # 从文件加载当前内容
+            content = self.file_manager.load_current_content()
+            
+            if not content:
+                self.logger.warning("文件中没有可用内容")
+                return False
+            
+            # 显示内容
+            if DISPLAY_TYPE in ["epaper", "epaper_old"]:
+                self.display_controller.display_daily_content(content)
+            else:
+                self.display_controller.display_content(content)
+            
+            # 记录显示信息
+            self._log_update_info(content)
+            
+            self.logger.info("文件内容显示完成")
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"从文件显示内容失败: {e}")
+            return False
     
     def clear_display(self) -> bool:
         """清空显示"""
@@ -288,6 +350,9 @@ class DailyWordSystem:
             # 获取缓存统计
             cache_stats = self.api_client.get_cache_stats() if self.api_client else {}
             
+            # 获取文件管理器统计
+            file_stats = self.file_manager.get_file_stats() if self.file_manager else {}
+            
             # 获取系统信息（包括IP地址）
             try:
                 from word_config_rpi import get_system_info
@@ -309,8 +374,10 @@ class DailyWordSystem:
                 'components': {
                     'api_client': self.api_client is not None,
                     'display_controller': self.display_controller is not None,
+                    'file_manager': self.file_manager is not None,
                 },
                 'cache': cache_stats,
+                'files': file_stats,
                 'config': {
                     'update_mode': UPDATE_CONFIG['mode'],
                     'debug_mode': DEBUG_CONFIG['debug_mode'],
