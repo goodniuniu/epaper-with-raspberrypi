@@ -204,6 +204,11 @@ class DailyWordAPIClient:
         """从主要API获取单词"""
         try:
             config = WORD_API_CONFIG['primary']
+            
+            # 检查API是否被禁用
+            if not config.get('enabled', True):
+                logger.info(f"主要API {config['name']} 已被禁用，跳过")
+                return None
             base_url = config['base_url']
             endpoint = config['endpoints']['word_of_day']
             timeout = config['timeout']
@@ -233,6 +238,11 @@ class DailyWordAPIClient:
         for api_key in apis_to_try:
             try:
                 config = WORD_API_CONFIG[api_key]
+                
+                # 检查API是否被禁用
+                if not config.get('enabled', True):
+                    logger.info(f"备用API {config['name']} 已被禁用，跳过")
+                    continue
                 base_url = config['base_url']
                 endpoint = config['endpoints']['word_definition']
                 timeout = config['timeout']

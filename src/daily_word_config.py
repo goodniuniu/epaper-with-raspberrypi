@@ -75,8 +75,8 @@ SUPPORTED_EPAPER_MODELS = {
 # 单词API配置
 WORD_API_CONFIG = {
     'primary': {
-        'name': 'Wordnik',
-        'base_url': 'https://api.wordnik.com/v4',
+        'name': 'Free Dictionary API',
+        'base_url': 'https://api.dictionaryapi.dev/api/v2',
         'endpoints': {
             'word_of_day': '/words.json/wordOfTheDay',
             'word_definition': '/word.json/{word}/definitions',
@@ -88,13 +88,17 @@ WORD_API_CONFIG = {
     },
     
     'fallback': {
-        'name': 'Free Dictionary API',
-        'base_url': 'https://api.dictionaryapi.dev/api/v2',
+        'name': 'Wordnik',
+        'base_url': 'https://api.wordnik.com/v4',
         'endpoints': {
-            'word_definition': '/entries/en/{word}',
+            'word_of_day': '/words.json/wordOfTheDay',
+            'word_definition': '/word.json/{word}/definitions',
+            'word_example': '/word.json/{word}/examples',
         },
-        'timeout': 15,
+        'api_key': None,  # 需要申请API密钥
+        'timeout': 10,
         'retry_count': 3,
+        'enabled': False,  # 默认禁用，需要API密钥
     },
     
     'secondary_fallback': {
@@ -108,7 +112,8 @@ WORD_API_CONFIG = {
         'headers': {
             'X-RapidAPI-Host': 'wordsapiv1.p.rapidapi.com',
             'X-RapidAPI-Key': None  # 需要API密钥
-        }
+        },
+        'enabled': False,  # 默认禁用，需要API密钥
     }
 }
 
