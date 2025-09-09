@@ -1,0 +1,30 @@
+# Windows开发环境依赖包
+# 排除了树莓派专用的GPIO和SPI包
+
+# 图像处理
+pillow==10.2.0
+
+# HTTP请求
+requests==2.31.0
+urllib3==2.2.0
+certifi==2024.2.2
+charset-normalizer==3.3.2
+idna==3.6
+
+# 图形和SVG处理
+cairocffi==1.6.1
+CairoSVG==2.7.1
+cffi==1.16.0
+pycparser==2.21
+cssselect2==0.7.0
+tinycss2==1.2.1
+webencodings==0.5.1
+defusedxml==0.7.1
+
+# 颜色处理
+colorzero==2.0
+
+# 注意：以下包仅在树莓派上需要，Windows开发时会被模拟
+# RPi.GPIO==0.7.1  # 树莓派GPIO控制
+# spidev==3.6      # SPI通信
+# gpiozero==2.0    # GPIO零库
