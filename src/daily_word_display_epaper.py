@@ -10,6 +10,11 @@ import time
 import logging
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
+from pathlib import Path
+try:
+    from daily_word_config import DATA_DIR
+except Exception:
+    DATA_DIR = Path.cwd() / 'data'
 
 # 添加当前目录到路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -188,10 +193,14 @@ class DailyWordEPaperDisplay:
                 logger.info("内容已显示到墨水屏")
             else:
                 logger.info("模拟模式：内容已准备好显示")
-                # 保存预览图像
-                preview_path = "/opt/daily-word-epaper/debug_preview.png"
-                image.save(preview_path)
-                logger.info(f"预览图像已保存: {preview_path}")
+                # 保存预览图像到项目数据目录
+                try:
+                    Path(DATA_DIR).mkdir(parents=True, exist_ok=True)
+                    preview_path = Path(DATA_DIR) / "debug_preview.png"
+                    image.save(preview_path)
+                    logger.info(f"预览图像已保存: {preview_path}")
+                except Exception as e:
+                    logger.warning(f"保存预览图像失败: {e}")
             
         except Exception as e:
             logger.error(f"显示内容失败: {e}")

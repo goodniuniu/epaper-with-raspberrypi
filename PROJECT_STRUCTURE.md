@@ -97,14 +97,23 @@ daily-word-epaper/
 
 ## 📋 核心文件说明
 
-### 🔧 主要程序文件
+### 🔧 主要程序文件（推荐）
 
 | 文件 | 功能描述 |
 |------|----------|
-| `src/daily_word_rpi.py` | 主程序入口，处理命令行参数和程序流程 |
-| `src/class_word_api.py` | 单词API客户端，负责获取每日单词和句子 |
-| `src/epaper_display_rpi.py` | 墨水屏显示控制器，处理内容渲染和显示 |
-| `src/word_config.py` | 系统配置文件，包含所有可配置参数 |
+| `src/daily_word_main.py` | 主程序入口（推荐），整合API/缓存/显示/日志/调度 |
+| `src/daily_word_api_client.py` | API客户端，获取每日单词与句子并带缓存与兜底 |
+| `src/daily_word_display_controller.py` | 新版显示控制器，支持布局/主题/模拟模式 |
+| `src/daily_word_config.py` | 统一配置中心（硬件/API/主题/更新/日志等） |
+
+### 🧩 兼容/示例程序（可选）
+
+| 文件 | 功能描述 |
+|------|----------|
+| `src/daily_word_rpi.py` | 旧版入口（兼容/示例） |
+| `src/class_word_api.py` | 旧版API客户端（示例） |
+| `src/epaper_display_rpi.py` | 旧版显示控制（示例） |
+| `src/word_config.py` | 旧版配置（示例） |
 
 ### 🛠️ 管理工具
 

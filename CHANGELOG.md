@@ -22,6 +22,24 @@
 - 解决字体加载异常
 - 修正时区显示错误
 
+## [1.1.0] - 2025-10-29
+
+### 新增 Added
+- 在 `src/daily_word_config.py` 增加 `NETWORK_CONFIG`，支持安全策略配置：`verify_ssl`、`ca_bundle`、`allow_insecure_fallback`。
+
+### 更改 Changed
+- `src/daily_word_api_client.py` 默认启用 SSL 证书校验，并支持自定义 CA；仅在显式启用回退时才允许不校验请求。
+- `src/daily_word_file_manager.py` 跨平台文件写入：在支持平台使用文件锁；统一采用 `os.replace` 原子替换；默认使用项目 `DATA_DIR`。
+- `src/daily_word_vocabulary_manager.py` 默认使用项目 `DATA_DIR`。
+- `src/daily_word_display_epaper.py` 模拟模式下预览图保存至 `DATA_DIR/debug_preview.png`。
+- 版本号更新至 `1.1.0`。
+
+### 安全 Security
+- 通过默认启用 SSL 校验提高网络安全性；可按需配置自定义 CA。
+
+### 兼容性 Compatibility
+- Windows 环境不再依赖 `fcntl`；写入仍尽量保持原子性。
+
 ## [1.0.0] - 2025-01-02
 
 ### 新增 Added

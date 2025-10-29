@@ -21,8 +21,8 @@ from typing import Dict, List, Optional, Union
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 from daily_word_config import (
-    WORD_API_CONFIG, QUOTE_API_CONFIG, CACHE_CONFIG, 
-    FALLBACK_WORDS, FALLBACK_QUOTES, DATA_DIR
+    WORD_API_CONFIG, QUOTE_API_CONFIG, CACHE_CONFIG,
+    FALLBACK_WORDS, FALLBACK_QUOTES, DATA_DIR, NETWORK_CONFIG
 )
 
 # 配置日志
@@ -79,30 +79,47 @@ class DailyWordAPIClient:
             return False
     
     def _make_request(self, url: str, timeout: int = 15, retry_count: int = 3) -> Optional[Dict]:
-        """发起HTTP请求（禁用SSL验证）"""
+        """发起HTTP请求（遵循NETWORK_CONFIG的SSL策略）"""
         for attempt in range(retry_count):
             try:
                 logger.debug(f"请求URL: {url} (尝试 {attempt + 1}/{retry_count})")
-                
+
                 headers = {
                     'User-Agent': 'Mozilla/5.0 (compatible; Daily-Word-EPaper/1.0)',
                     'Accept': 'application/json',
                 }
-                
-                # 禁用SSL验证，处理网络连接问题
+
+                # SSL校验策略
+                verify_arg = NETWORK_CONFIG.get('ca_bundle') or NETWORK_CONFIG.get('verify_ssl', True)
+
                 response = requests.get(
-                    url, 
-                    headers=headers, 
+                    url,
+                    headers=headers,
                     timeout=timeout,
-                    verify=False  # 禁用SSL验证
+                    verify=verify_arg
                 )
                 response.raise_for_status()
-                
+
                 data = response.json()
                 logger.debug(f"请求成功: {url}")
                 return data
-                
-            except (requests.exceptions.RequestException, 
+
+            except requests.exceptions.SSLError as e:
+                logger.warning(f"SSL验证失败: {e}")
+                # 可选的非安全回退（不推荐）
+                if NETWORK_CONFIG.get('allow_insecure_fallback', False):
+                    try:
+                        logger.warning("尝试在不校验证书的情况下回退请求（不推荐，仅临时应急）")
+                        response = requests.get(url, headers=headers, timeout=timeout, verify=False)
+                        response.raise_for_status()
+                        data = response.json()
+                        return data
+                    except Exception as ee:
+                        logger.warning(f"不校验回退失败: {ee}")
+                if attempt < retry_count - 1:
+                    time.sleep(2 ** attempt)
+                continue
+            except (requests.exceptions.RequestException,
                    socket.timeout, socket.gaierror, ConnectionError) as e:
                 logger.warning(f"网络请求失败 (尝试 {attempt + 1}/{retry_count}): {e}")
                 if attempt < retry_count - 1:
@@ -119,33 +136,48 @@ class DailyWordAPIClient:
         return None
     
     def _make_request_with_headers(self, url: str, timeout: int = 15, retry_count: int = 3, custom_headers: Dict = None) -> Optional[Dict]:
-        """发起带自定义头部的HTTP请求"""
+        """发起带自定义头部的HTTP请求（遵循NETWORK_CONFIG的SSL策略）"""
         for attempt in range(retry_count):
             try:
                 logger.debug(f"请求URL: {url} (尝试 {attempt + 1}/{retry_count})")
-                
+
                 headers = {
                     'User-Agent': 'Mozilla/5.0 (compatible; Daily-Word-EPaper/1.0)',
                     'Accept': 'application/json',
                 }
-                
+
                 if custom_headers:
                     headers.update(custom_headers)
-                
-                # 禁用SSL验证，处理网络连接问题
+
+                verify_arg = NETWORK_CONFIG.get('ca_bundle') or NETWORK_CONFIG.get('verify_ssl', True)
+
                 response = requests.get(
-                    url, 
-                    headers=headers, 
+                    url,
+                    headers=headers,
                     timeout=timeout,
-                    verify=False  # 禁用SSL验证
+                    verify=verify_arg
                 )
                 response.raise_for_status()
-                
+
                 data = response.json()
                 logger.debug(f"请求成功: {url}")
                 return data
-                
-            except (requests.exceptions.RequestException, 
+
+            except requests.exceptions.SSLError as e:
+                logger.warning(f"SSL验证失败: {e}")
+                if NETWORK_CONFIG.get('allow_insecure_fallback', False):
+                    try:
+                        logger.warning("尝试在不校验证书的情况下回退请求（不推荐，仅临时应急）")
+                        response = requests.get(url, headers=headers, timeout=timeout, verify=False)
+                        response.raise_for_status()
+                        data = response.json()
+                        return data
+                    except Exception as ee:
+                        logger.warning(f"不校验回退失败: {ee}")
+                if attempt < retry_count - 1:
+                    time.sleep(2 ** attempt)
+                continue
+            except (requests.exceptions.RequestException,
                    socket.timeout, socket.gaierror, ConnectionError) as e:
                 logger.warning(f"网络请求失败 (尝试 {attempt + 1}/{retry_count}): {e}")
                 if attempt < retry_count - 1:

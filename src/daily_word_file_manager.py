@@ -11,19 +11,31 @@ import logging
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional, Any
-import fcntl
+from typing import Dict, List, Optional, Any, Union
 import tempfile
 import shutil
+
+# 跨平台文件锁支持（Windows 无 fcntl）
+try:
+    import fcntl  # type: ignore
+    _HAVE_FCNTL = True
+except Exception:  # pragma: no cover
+    fcntl = None
+    _HAVE_FCNTL = False
+
+from daily_word_config import DATA_DIR
 
 logger = logging.getLogger(__name__)
 
 class DailyWordFileManager:
     """每日单词文件管理器"""
     
-    def __init__(self, data_dir: str = "/opt/daily-word-epaper/data"):
-        """初始化文件管理器"""
-        self.data_dir = Path(data_dir)
+    def __init__(self, data_dir: Optional[Union[str, Path]] = None):
+        """初始化文件管理器
+
+        data_dir: 默认使用项目配置的 DATA_DIR，便于跨平台。
+        """
+        self.data_dir = Path(data_dir) if data_dir else Path(DATA_DIR)
         self.data_dir.mkdir(parents=True, exist_ok=True)
         
         # 定义文件路径
@@ -39,23 +51,31 @@ class DailyWordFileManager:
         try:
             # 使用临时文件确保原子写入
             temp_file = file_path.with_suffix('.tmp')
-            
+
             with open(temp_file, 'w', encoding='utf-8') as f:
-                # 添加文件锁
-                fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+                # 添加文件锁（仅在支持的平台）
+                if _HAVE_FCNTL:
+                    fcntl.flock(f.fileno(), fcntl.LOCK_EX)
                 json.dump(data, f, ensure_ascii=False, indent=2)
                 f.flush()
                 os.fsync(f.fileno())
-            
-            # 原子替换
-            shutil.move(str(temp_file), str(file_path))
+
+            # 原子替换（os.replace 在 Windows/Unix 均为原子）
+            try:
+                os.replace(str(temp_file), str(file_path))
+            except Exception:
+                # 回退到 shutil.move（非严格原子，但尽力而为）
+                shutil.move(str(temp_file), str(file_path))
             return True
-            
+
         except Exception as e:
             logger.error(f"写入文件失败 {file_path}: {e}")
             # 清理临时文件
-            if temp_file.exists():
-                temp_file.unlink()
+            try:
+                if 'temp_file' in locals() and Path(temp_file).exists():
+                    Path(temp_file).unlink()
+            except Exception:
+                pass
             return False
     
     def _safe_read_json(self, file_path: Path) -> Optional[Dict]:
@@ -63,10 +83,11 @@ class DailyWordFileManager:
         try:
             if not file_path.exists():
                 return None
-                
+
             with open(file_path, 'r', encoding='utf-8') as f:
-                # 添加文件锁
-                fcntl.flock(f.fileno(), fcntl.LOCK_SH)
+                # 添加文件锁（仅在支持的平台）
+                if _HAVE_FCNTL:
+                    fcntl.flock(f.fileno(), fcntl.LOCK_SH)
                 return json.load(f)
                 
         except Exception as e:

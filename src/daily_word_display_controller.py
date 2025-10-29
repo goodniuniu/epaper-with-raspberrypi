@@ -31,7 +31,7 @@ except ImportError:
 
 from daily_word_config import (
     EPAPER_CONFIG, FONT_CONFIG, LAYOUT_CONFIG, THEME_CONFIG,
-    SUPPORTED_EPAPER_MODELS, DEBUG_CONFIG
+    SUPPORTED_EPAPER_MODELS, DEBUG_CONFIG, DATA_DIR
 )
 
 # 配置日志
@@ -454,9 +454,13 @@ class DailyWordDisplayController:
             
             # 保存预览图像（调试用）
             if DEBUG_CONFIG['debug_mode']:
-                preview_path = Path("debug_preview.png")
-                image.save(preview_path)
-                logger.debug(f"预览图像已保存: {preview_path}")
+                try:
+                    Path(DATA_DIR).mkdir(parents=True, exist_ok=True)
+                    preview_path = Path(DATA_DIR) / "debug_preview.png"
+                    image.save(preview_path)
+                    logger.debug(f"预览图像已保存: {preview_path}")
+                except Exception as e:
+                    logger.warning(f"预览图像保存失败: {e}")
             
             # 显示到墨水屏
             if HARDWARE_AVAILABLE and not DEBUG_CONFIG['mock_hardware']:

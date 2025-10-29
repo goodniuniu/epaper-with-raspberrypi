@@ -1,5 +1,33 @@
 # 系统参数配置
 
+> 新版统一配置中心说明（推荐）
+>
+> 自 v1.1.0 起，核心参数集中在 `src/daily_word_config.py`：
+> - 硬件：`EPAPER_CONFIG`、`SUPPORTED_EPAPER_MODELS`
+> - API：`WORD_API_CONFIG`、`QUOTE_API_CONFIG`
+> - 更新：`UPDATE_CONFIG`
+> - 缓存/日志：`CACHE_CONFIG`、`LOGGING_CONFIG`、`DATA_DIR`、`LOGS_DIR`
+> - 主题/布局/字体：`THEME_CONFIG`、`LAYOUT_CONFIG`、`FONT_CONFIG`
+> - 网络与安全：`NETWORK_CONFIG`（SSL校验/自定义CA/回退开关）
+>
+> 示例（网络安全）：
+> ```python
+> NETWORK_CONFIG = {
+>   'verify_ssl': True,
+>   'ca_bundle': None,  # '/path/to/ca.pem'
+>   'allow_insecure_fallback': False,
+> }
+> ```
+>
+> 示例（更新策略）：
+> ```python
+> UPDATE_CONFIG['mode'] = 'interval'  # 或 'scheduled'
+> UPDATE_CONFIG['interval']['update_interval'] = 600
+> UPDATE_CONFIG['scheduled']['update_times'] = ['08:00','12:00','18:00']
+> ```
+>
+> 旧版 `word_config.py / word_config_rpi.py` 仍可参考作为示例，但推荐迁移到 `daily_word_config.py`。
+
 ## 📋 概述
 
 本章节将指导您配置每日单词墨水屏显示系统的各项参数，包括硬件配置、API设置、显示参数和系统选项。

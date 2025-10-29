@@ -77,6 +77,21 @@ chmod +x docs/assets/scripts/install.sh
 
 ## 🎯 基本使用
 
+### 命令行入口（推荐）
+
+```bash
+# 单次更新显示
+python src/daily_word_main.py --force
+
+# 守护进程/间隔模式（根据配置）
+python src/daily_word_main.py --daemon
+
+# 清空/测试/状态
+python src/daily_word_main.py --clear
+python src/daily_word_main.py --test
+python src/daily_word_main.py --status
+```
+
 ### 管理命令
 
 ```bash
@@ -97,28 +112,52 @@ chmod +x docs/assets/scripts/install.sh
 ./manage.sh backup     # 系统备份
 ```
 
-### 配置定制
+### 配置定制（统一配置中心）
 
 ```bash
-# 编辑配置文件
-nano src/word_config.py
+# 编辑统一配置文件
+nano src/daily_word_config.py
 
-# 修改更新时间
+# 修改更新策略（二选一）
 UPDATE_CONFIG = {
-    'update_times': ['08:00', '12:00', '18:00'],  # 自定义更新时间
-    'update_interval': 3600,                      # 更新间隔(秒)
+    'mode': 'interval',
+    'scheduled': {
+        'update_times': ['08:00', '12:00', '18:00'],
+        'timezone': 'Asia/Shanghai',
+        'random_delay': 300,
+    },
+    'interval': {
+        'update_interval': 600,   # 每10分钟
+        'min_interval': 300,
+        'max_interval': 1800,
+    },
+    'content_strategy': {
+        'word_update_frequency': 'daily',
+        'quote_update_frequency': 'daily',
+        'force_new_content': False,
+        'cache_duration': 86400,
+    }
 }
 
-# 调整显示样式
-FONT_CONFIG = {
-    'font_size_word': 20,       # 单词字体大小
-    'font_size_definition': 12, # 定义字体大小
-    'line_spacing': 2           # 行间距
-}
+# 调整显示相关（字体/布局/主题）
+FONT_CONFIG['font_sizes']['word'] = 20
+LAYOUT_CONFIG['margins']['left'] = 8
+THEME_CONFIG['current_theme'] = 'modern'
 
-# 重启服务使配置生效
-./manage.sh restart
+# 保存后，重新运行或重启服务生效
 ```
+
+### 网络与安全
+
+```python
+# src/daily_word_config.py
+NETWORK_CONFIG = {
+    'verify_ssl': True,          # 默认开启证书校验
+    'ca_bundle': None,           # 如需自定义CA: '/path/to/ca.pem'
+    'allow_insecure_fallback': False,  # 非安全回退（不推荐）
+}
+```
+说明：若目标系统缺失根证书，可设置 `ca_bundle` 指向可信 CA 文件；仅在排障时临时开启 `allow_insecure_fallback`。
 
 ## 📊 系统监控
 

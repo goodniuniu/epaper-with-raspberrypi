@@ -13,7 +13,7 @@ from pathlib import Path
 
 # 项目信息
 PROJECT_NAME = "Daily Word E-Paper Display"
-PROJECT_VERSION = "1.0.0"
+PROJECT_VERSION = "1.1.0"
 PROJECT_AUTHOR = "Daily Word Team"
 
 # 路径配置
@@ -138,8 +138,17 @@ QUOTE_API_CONFIG = {
             'today_quote': '/today',
         },
         'timeout': 10,
-        'retry_count': 2,
+    'retry_count': 2,
     }
+}
+
+# ==================== 网络配置 ====================
+
+# 网络与安全配置（用于HTTP请求）
+NETWORK_CONFIG = {
+    'verify_ssl': True,          # 是否校验证书（建议启用）
+    'ca_bundle': None,           # 自定义CA证书路径（如无则使用系统CA）
+    'allow_insecure_fallback': False,  # 当SSL失败时是否回退为不校验（不建议）
 }
 
 # ==================== 显示配置 ====================

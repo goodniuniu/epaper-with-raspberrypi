@@ -15,15 +15,16 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 import time
+from daily_word_config import DATA_DIR
 
 logger = logging.getLogger(__name__)
 
 class VocabularyManager:
     """词汇库管理器"""
     
-    def __init__(self, data_dir: str = "/opt/daily-word-epaper/data"):
-        """初始化词汇库管理器"""
-        self.data_dir = Path(data_dir)
+    def __init__(self, data_dir: Optional[str] = None):
+        """初始化词汇库管理器（默认使用项目DATA_DIR）"""
+        self.data_dir = Path(data_dir) if data_dir else Path(DATA_DIR)
         self.data_dir.mkdir(parents=True, exist_ok=True)
         
         # 词汇库文件路径
