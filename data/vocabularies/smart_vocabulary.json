@@ -1,0 +1,131 @@
+{
+  "metadata": {
+    "name": "智能词汇库",
+    "description": "精选高质量英语词汇，按主题分类",
+    "version": "1.0",
+    "created": "2025-11-16T22:56:40.409072",
+    "total_words": 15
+  },
+  "words": [
+    {
+      "word": "serendipity",
+      "phonetic": "/ˌserənˈdipədē/",
+      "definition": "The occurrence and development of events by chance in a happy or beneficial way.",
+      "example": "A fortunate stroke of serendipity brought the old friends together after decades.",
+      "category": "nature",
+      "difficulty": "advanced"
+    },
+    {
+      "word": "petrichor",
+      "phonetic": "/ˈpetrɪkɔr/",
+      "definition": "A pleasant smell frequently accompanying the first rain after a long period of warm, dry weather.",
+      "example": "The petrichor filled the air as the summer rain began to fall.",
+      "category": "nature",
+      "difficulty": "advanced"
+    },
+    {
+      "word": "ephemeral",
+      "phonetic": "/əˈfem(ə)rəl/",
+      "definition": "Lasting for a very short time.",
+      "example": "The beauty of cherry blossoms is ephemeral, lasting only a few weeks each spring.",
+      "category": "nature",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "verdant",
+      "phonetic": "/ˈvərdnt/",
+      "definition": "Green with grass or other rich vegetation.",
+      "example": "The verdant hills stretched as far as the eye could see.",
+      "category": "nature",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "pristine",
+      "phonetic": "/ˈprɪstiːn/",
+      "definition": "In its original condition; unspoiled.",
+      "example": "The pristine wilderness was untouched by human development.",
+      "category": "nature",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "mellifluous",
+      "phonetic": "/məˈliflo͞oəs/",
+      "definition": "Sweet or musical; pleasant to hear.",
+      "example": "Her mellifluous voice captivated the entire audience.",
+      "category": "emotions",
+      "difficulty": "advanced"
+    },
+    {
+      "word": "euphoria",
+      "phonetic": "/yo͞oˈfôrēə/",
+      "definition": "A feeling or state of intense excitement and happiness.",
+      "example": "The team felt euphoria after winning the championship.",
+      "category": "emotions",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "tranquil",
+      "phonetic": "/ˈtraNGkwəl/",
+      "definition": "Free from disturbance; calm.",
+      "example": "The tranquil lake reflected the mountains perfectly.",
+      "category": "emotions",
+      "difficulty": "basic"
+    },
+    {
+      "word": "exuberant",
+      "phonetic": "/ɪɡˈzuːbərənt/",
+      "definition": "Filled with or characterized by a lively energy and excitement.",
+      "example": "The children were exuberant on the last day of school.",
+      "category": "emotions",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "serene",
+      "phonetic": "/səˈriːn/",
+      "definition": "Calm, peaceful, and untroubled.",
+      "example": "She maintained a serene expression despite the chaos around her.",
+      "category": "emotions",
+      "difficulty": "basic"
+    },
+    {
+      "word": "luminous",
+      "phonetic": "/ˈlo͞omənəs/",
+      "definition": "Full of or shedding light; bright or shining.",
+      "example": "The luminous moon cast a silver glow over the landscape.",
+      "category": "beauty",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "ethereal",
+      "phonetic": "/əˈTHirēəl/",
+      "definition": "Extremely delicate and light in a way that seems too perfect for this world.",
+      "example": "The dancer moved with an ethereal grace across the stage.",
+      "category": "beauty",
+      "difficulty": "advanced"
+    },
+    {
+      "word": "sublime",
+      "phonetic": "/səˈblīm/",
+      "definition": "Of such excellence, grandeur, or beauty as to inspire great admiration or awe.",
+      "example": "The view from the mountain peak was absolutely sublime.",
+      "category": "beauty",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "resplendent",
+      "phonetic": "/rɪˈsplendənt/",
+      "definition": "Attractive and impressive through being richly colorful or sumptuous.",
+      "example": "The bride looked resplendent in her wedding gown.",
+      "category": "beauty",
+      "difficulty": "advanced"
+    },
+    {
+      "word": "exquisite",
+      "phonetic": "/ɪkˈskwɪzɪt/",
+      "definition": "Extremely beautiful and delicate.",
+      "example": "The exquisite craftsmanship of the jewelry was evident in every detail.",
+      "category": "beauty",
+      "difficulty": "intermediate"
+    }
+  ]
+}

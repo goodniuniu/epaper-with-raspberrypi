@@ -1,0 +1,22 @@
+{
+  "data": {
+    "word": {
+      "word": "serendipity",
+      "phonetic": "/ˌsɛ.ɹən.ˈdɪ.pɪ.ti/",
+      "definition": "A combination of events which have come together by chance to make a surprisingly good or wonderful outcome.",
+      "example": "",
+      "source": "Free Dictionary API"
+    },
+    "quote": {
+      "text": "The whole of life, from the moment you are born to the moment you die, is a process of learning.",
+      "author": "Jiddu Krishnamurti",
+      "category": "inspiration",
+      "source": "ZenQuotes API"
+    },
+    "generated_at": "2025-11-16T22:57:18.019696",
+    "fetch_time": 1.6323416233062744
+  },
+  "expire_at": 1763308638.0204105,
+  "created_at": 1763305038.0204115,
+  "key": "daily_content:2025-11-16"
+}

@@ -1,0 +1,20 @@
+{
+  "data": {
+    "word": {
+      "word": "optimization",
+      "phonetic": "/ˌɒptɪmʌɪˈzeɪʃ(ə)n/",
+      "definition": "The action of making the best or most effective use of a resource.",
+      "example": "The optimization of the algorithm improved performance significantly.",
+      "source": "Test"
+    },
+    "quote": {
+      "text": "Optimization is the process of making something as effective as possible.",
+      "author": "Test Author",
+      "category": "technology",
+      "source": "Test"
+    }
+  },
+  "expire_at": 1763308636.3844197,
+  "created_at": 1763305036.38442,
+  "key": "test_key_1"
+}

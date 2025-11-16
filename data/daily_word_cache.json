@@ -7,5 +7,16 @@
     "source": "Dictionary API",
     "fetched_at": "2025-08-30T10:59:26.723854",
     "date": "2025-08-30"
+  },
+  "2025-11-16": {
+    "word": "demographic",
+    "phonetic": "/dɛməˈɡɹæfɪk/",
+    "definition": "(chiefly in plural) A demographic criterion: a characteristic used to classify people for statistical purposes, such as age, race, or gender.",
+    "example": "",
+    "category": "society",
+    "difficulty": "advanced",
+    "source": "Free Dictionary API",
+    "date": "2025-11-16",
+    "fetched_at": "2025-11-16T23:04:24.864400"
   }
 }

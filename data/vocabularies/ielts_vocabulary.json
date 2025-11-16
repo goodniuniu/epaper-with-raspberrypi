@@ -1,0 +1,291 @@
+{
+  "metadata": {
+    "name": "雅思词汇库",
+    "description": "IELTS 雅思考试核心词汇 - 内置高质量词汇",
+    "source": "builtin",
+    "created": "2025-11-16T22:56:46.170548",
+    "total_words": 35
+  },
+  "words": [
+    {
+      "word": "academic",
+      "phonetic": "/ˌækəˈdemɪk/",
+      "definition": "Relating to education and scholarship",
+      "example": "She has an academic background in linguistics.",
+      "category": "education",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "curriculum",
+      "phonetic": "/kəˈrɪkjələm/",
+      "definition": "The subjects comprising a course of study",
+      "example": "The new curriculum includes more practical skills.",
+      "category": "education",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "methodology",
+      "phonetic": "/ˌmeθəˈdɒlədʒi/",
+      "definition": "A system of methods used in a particular area of study",
+      "example": "The research methodology was clearly explained.",
+      "category": "education",
+      "difficulty": "advanced"
+    },
+    {
+      "word": "hypothesis",
+      "phonetic": "/haɪˈpɒθəsɪs/",
+      "definition": "A supposition or proposed explanation",
+      "example": "The scientist tested her hypothesis through experiments.",
+      "category": "education",
+      "difficulty": "advanced"
+    },
+    {
+      "word": "analysis",
+      "phonetic": "/əˈnæləsɪs/",
+      "definition": "Detailed examination of the elements or structure",
+      "example": "The analysis revealed interesting patterns in the data.",
+      "category": "education",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "sustainable",
+      "phonetic": "/səˈsteɪnəbl/",
+      "definition": "Able to be maintained at a certain rate or level",
+      "example": "We need sustainable energy sources for the future.",
+      "category": "environment",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "biodiversity",
+      "phonetic": "/ˌbaɪəʊdaɪˈvɜːsəti/",
+      "definition": "The variety of plant and animal life",
+      "example": "The rainforest has incredible biodiversity.",
+      "category": "environment",
+      "difficulty": "advanced"
+    },
+    {
+      "word": "ecosystem",
+      "phonetic": "/ˈiːkəʊˌsɪstəm/",
+      "definition": "A biological community of interacting organisms",
+      "example": "The coral reef ecosystem is very fragile.",
+      "category": "environment",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "conservation",
+      "phonetic": "/ˌkɒnsəˈveɪʃn/",
+      "definition": "The protection of plants, animals, and natural areas",
+      "example": "Wildlife conservation is crucial for future generations.",
+      "category": "environment",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "renewable",
+      "phonetic": "/rɪˈnjuːəbl/",
+      "definition": "Not depleted when used",
+      "example": "Solar power is a renewable energy source.",
+      "category": "environment",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "innovation",
+      "phonetic": "/ˌɪnəˈveɪʃn/",
+      "definition": "The action or process of innovating",
+      "example": "Technological innovation drives economic growth.",
+      "category": "technology",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "artificial",
+      "phonetic": "/ˌɑːtɪˈfɪʃl/",
+      "definition": "Made or produced by human beings rather than occurring naturally",
+      "example": "Artificial intelligence is transforming many industries.",
+      "category": "technology",
+      "difficulty": "basic"
+    },
+    {
+      "word": "automation",
+      "phonetic": "/ˌɔːtəˈmeɪʃn/",
+      "definition": "The use of largely automatic equipment",
+      "example": "Factory automation has increased productivity.",
+      "category": "technology",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "digital",
+      "phonetic": "/ˈdɪdʒɪtl/",
+      "definition": "Relating to computer technology",
+      "example": "The digital revolution changed how we communicate.",
+      "category": "technology",
+      "difficulty": "basic"
+    },
+    {
+      "word": "algorithm",
+      "phonetic": "/ˈælɡərɪðəm/",
+      "definition": "A process or set of rules to be followed",
+      "example": "The search algorithm finds relevant results quickly.",
+      "category": "technology",
+      "difficulty": "advanced"
+    },
+    {
+      "word": "diversity",
+      "phonetic": "/daɪˈvɜːsəti/",
+      "definition": "The state of being diverse; variety",
+      "example": "Cultural diversity enriches our society.",
+      "category": "society",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "globalization",
+      "phonetic": "/ˌɡləʊbəlaɪˈzeɪʃn/",
+      "definition": "The process by which businesses develop international influence",
+      "example": "Globalization has connected markets worldwide.",
+      "category": "society",
+      "difficulty": "advanced"
+    },
+    {
+      "word": "urbanization",
+      "phonetic": "/ˌɜːbənaɪˈzeɪʃn/",
+      "definition": "The process of making an area more urban",
+      "example": "Rapid urbanization has created megacities.",
+      "category": "society",
+      "difficulty": "advanced"
+    },
+    {
+      "word": "demographic",
+      "phonetic": "/ˌdeməˈɡræfɪk/",
+      "definition": "Relating to the structure of populations",
+      "example": "Demographic changes affect economic planning.",
+      "category": "society",
+      "difficulty": "advanced"
+    },
+    {
+      "word": "multicultural",
+      "phonetic": "/ˌmʌltiˈkʌltʃərəl/",
+      "definition": "Relating to several cultural groups",
+      "example": "Australia is a multicultural society.",
+      "category": "society",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "pharmaceutical",
+      "phonetic": "/ˌfɑːməˈsuːtɪkl/",
+      "definition": "Relating to medicinal drugs",
+      "example": "The pharmaceutical industry develops new treatments.",
+      "category": "health",
+      "difficulty": "advanced"
+    },
+    {
+      "word": "epidemic",
+      "phonetic": "/ˌepɪˈdemɪk/",
+      "definition": "A widespread occurrence of an infectious disease",
+      "example": "The flu epidemic affected thousands of people.",
+      "category": "health",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "nutrition",
+      "phonetic": "/njuˈtrɪʃn/",
+      "definition": "The process of providing food necessary for health",
+      "example": "Good nutrition is essential for children's development.",
+      "category": "health",
+      "difficulty": "basic"
+    },
+    {
+      "word": "therapy",
+      "phonetic": "/ˈθerəpi/",
+      "definition": "Treatment intended to relieve or heal a disorder",
+      "example": "Physical therapy helped her recover from the injury.",
+      "category": "health",
+      "difficulty": "basic"
+    },
+    {
+      "word": "diagnosis",
+      "phonetic": "/ˌdaɪəɡˈnəʊsɪs/",
+      "definition": "The identification of the nature of an illness",
+      "example": "Early diagnosis improves treatment outcomes.",
+      "category": "health",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "entrepreneur",
+      "phonetic": "/ˌɒntrəprəˈnɜː/",
+      "definition": "A person who organizes and operates a business",
+      "example": "The young entrepreneur started three successful companies.",
+      "category": "business",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "investment",
+      "phonetic": "/ɪnˈvestmənt/",
+      "definition": "The action of investing money for profit",
+      "example": "Foreign investment boosted the local economy.",
+      "category": "business",
+      "difficulty": "basic"
+    },
+    {
+      "word": "infrastructure",
+      "phonetic": "/ˈɪnfrəˌstrʌktʃə/",
+      "definition": "The basic physical systems of a country or organization",
+      "example": "Good infrastructure attracts business investment.",
+      "category": "business",
+      "difficulty": "advanced"
+    },
+    {
+      "word": "recession",
+      "phonetic": "/rɪˈseʃn/",
+      "definition": "A period of temporary economic decline",
+      "example": "The recession led to higher unemployment rates.",
+      "category": "business",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "commodity",
+      "phonetic": "/kəˈmɒdəti/",
+      "definition": "A raw material or primary agricultural product",
+      "example": "Oil is an important global commodity.",
+      "category": "business",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "journalism",
+      "phonetic": "/ˈdʒɜːnəlɪzəm/",
+      "definition": "The activity of writing for newspapers or magazines",
+      "example": "Investigative journalism exposed the corruption scandal.",
+      "category": "media",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "broadcast",
+      "phonetic": "/ˈbrɔːdkɑːst/",
+      "definition": "Transmit a programme on television or radio",
+      "example": "The news was broadcast live from the scene.",
+      "category": "media",
+      "difficulty": "basic"
+    },
+    {
+      "word": "propaganda",
+      "phonetic": "/ˌprɒpəˈɡændə/",
+      "definition": "Information used to promote a political cause",
+      "example": "The government used propaganda to influence public opinion.",
+      "category": "media",
+      "difficulty": "advanced"
+    },
+    {
+      "word": "censorship",
+      "phonetic": "/ˈsensəʃɪp/",
+      "definition": "The suppression of speech or information",
+      "example": "Internet censorship limits access to information.",
+      "category": "media",
+      "difficulty": "intermediate"
+    },
+    {
+      "word": "documentary",
+      "phonetic": "/ˌdɒkjuˈmentri/",
+      "definition": "A film or television programme that provides factual information",
+      "example": "The documentary explored climate change issues.",
+      "category": "media",
+      "difficulty": "basic"
+    }
+  ]
+}
