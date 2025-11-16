@@ -13,7 +13,7 @@ from pathlib import Path
 
 # 项目信息
 PROJECT_NAME = "Daily Word E-Paper Display"
-PROJECT_VERSION = "1.1.0"
+PROJECT_VERSION = "2.1.0"
 PROJECT_AUTHOR = "Daily Word Team"
 
 # 路径配置
@@ -75,20 +75,20 @@ SUPPORTED_EPAPER_MODELS = {
 # 单词API配置
 WORD_API_CONFIG = {
     'primary': {
-        'name': 'Free Dictionary API',
+        'name': 'Free Dictionary API - Word Definitions',
         'base_url': 'https://api.dictionaryapi.dev/api/v2',
         'endpoints': {
-            'word_of_day': '/words.json/wordOfTheDay',
-            'word_definition': '/word.json/{word}/definitions',
-            'word_example': '/word.json/{word}/examples',
+            'word_definition': '/entries/en/{word}',  # 正确的端点格式
+            'random_word_base': '/entries/en/',       # 基础端点用于随机单词
         },
-        'api_key': None,  # 需要申请API密钥
+        'api_key': None,  # 免费API，不需要密钥
         'timeout': 10,
         'retry_count': 3,
+        'enabled': True,  # 启用，用于获取单词定义
     },
     
     'fallback': {
-        'name': 'Wordnik',
+        'name': 'Wordnik (Requires API Key)',
         'base_url': 'https://api.wordnik.com/v4',
         'endpoints': {
             'word_of_day': '/words.json/wordOfTheDay',
@@ -102,7 +102,7 @@ WORD_API_CONFIG = {
     },
     
     'secondary_fallback': {
-        'name': 'WordsAPI (RapidAPI)',
+        'name': 'WordsAPI (RapidAPI - Requires API Key)',
         'base_url': 'https://wordsapiv1.p.rapidapi.com',
         'endpoints': {
             'word_definition': '/words/{word}',
@@ -120,7 +120,19 @@ WORD_API_CONFIG = {
 # 句子API配置
 QUOTE_API_CONFIG = {
     'primary': {
-        'name': 'Quotable',
+        'name': 'ZenQuotes (Available)',
+        'base_url': 'https://zenquotes.io/api',
+        'endpoints': {
+            'random_quote': '/random',
+            'today_quote': '/today',
+        },
+        'timeout': 10,
+        'retry_count': 3,
+        'enabled': True,  # 启用，因为测试显示可用
+    },
+    
+    'fallback': {
+        'name': 'Quotable (SSL Issues)',
         'base_url': 'https://api.quotable.io',
         'endpoints': {
             'random_quote': '/random',
@@ -128,17 +140,7 @@ QUOTE_API_CONFIG = {
         },
         'timeout': 10,
         'retry_count': 3,
-    },
-    
-    'fallback': {
-        'name': 'ZenQuotes',
-        'base_url': 'https://zenquotes.io/api',
-        'endpoints': {
-            'random_quote': '/random',
-            'today_quote': '/today',
-        },
-        'timeout': 10,
-    'retry_count': 2,
+        'enabled': False,  # 禁用，因为SSL问题
     }
 }
 

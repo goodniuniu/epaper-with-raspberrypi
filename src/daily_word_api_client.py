@@ -241,24 +241,96 @@ class DailyWordAPIClient:
             if not config.get('enabled', True):
                 logger.info(f"主要API {config['name']} 已被禁用，跳过")
                 return None
-            base_url = config['base_url']
-            endpoint = config['endpoints']['word_of_day']
-            timeout = config['timeout']
             
-            url = f"{base_url}{endpoint}"
-            if config.get('api_key'):
-                url += f"?api_key={config['api_key']}"
+            # 由于主要API不支持每日单词，使用词汇库管理器获取随机单词
+            if self.vocab_manager:
+                word_data = self.vocab_manager.get_random_word()
+                if word_data:
+                    # 尝试获取单词定义
+                    word = word_data.get('word', '')
+                    if word:
+                        definition_data = self._fetch_word_definition(word)
+                        if definition_data:
+                            # 合并词汇库数据和API定义数据
+                            word_data.update(definition_data)
+                    return word_data
             
-            data = self._make_request(url, timeout, config['retry_count'])
-            
-            if data:
-                # 解析Wordnik API响应
-                return self._parse_wordnik_response(data)
+            # 如果词汇库管理器不可用，使用备用机制
+            return self._get_fallback_word()
                 
         except Exception as e:
             logger.error(f"主要API请求失败: {e}")
         
         return None
+    
+    def _fetch_word_definition(self, word: str) -> Optional[Dict]:
+        """从Free Dictionary API获取单词定义"""
+        try:
+            config = WORD_API_CONFIG['primary']
+            
+            if not config.get('enabled', True):
+                return None
+            
+            base_url = config['base_url']
+            endpoint = config['endpoints']['word_definition'].format(word=word)
+            timeout = config['timeout']
+            
+            url = f"{base_url}{endpoint}"
+            
+            data = self._make_request(url, timeout, config['retry_count'])
+            
+            if data:
+                return self._parse_free_dictionary_response(data, word)
+                
+        except Exception as e:
+            logger.error(f"获取单词定义失败: {e}")
+        
+        return None
+    
+    def _parse_free_dictionary_response(self, data: List, word: str) -> Optional[Dict]:
+        """解析Free Dictionary API响应"""
+        try:
+            if not data or not isinstance(data, list):
+                return None
+            
+            entry = data[0]
+            
+            # 获取音标
+            phonetic = ''
+            phonetics = entry.get('phonetics', [])
+            for p in phonetics:
+                if p.get('text'):
+                    phonetic = p['text']
+                    break
+            
+            # 获取定义
+            definition = ''
+            meanings = entry.get('meanings', [])
+            if meanings:
+                definitions = meanings[0].get('definitions', [])
+                if definitions:
+                    definition = definitions[0].get('definition', '')
+            
+            # 获取例句
+            example = ''
+            if meanings:
+                definitions = meanings[0].get('definitions', [])
+                for def_item in definitions:
+                    if def_item.get('example'):
+                        example = def_item['example']
+                        break
+            
+            return {
+                'word': word,
+                'phonetic': phonetic,
+                'definition': definition,
+                'example': example,
+                'source': 'Free Dictionary API'
+            }
+            
+        except Exception as e:
+            logger.error(f"解析Free Dictionary响应失败: {e}")
+            return None
     
     def _fetch_word_from_fallback_api(self) -> Optional[Dict]:
         """从备用API获取单词"""
@@ -523,8 +595,12 @@ class DailyWordAPIClient:
     def _fetch_quote_from_primary_api(self) -> Optional[Dict]:
         """从主要API获取句子"""
         try:
-            # 优先使用ZenQuotes，因为Quotable可能有SSL问题
-            config = QUOTE_API_CONFIG['fallback']  # 使用fallback配置（ZenQuotes）
+            # 使用ZenQuotes作为主要API（测试显示可用）
+            config = QUOTE_API_CONFIG['primary']  # 现在ZenQuotes是主要的
+            if not config.get('enabled', True):
+                logger.info(f"主要句子API {config['name']} 已被禁用，跳过")
+                return None
+                
             base_url = config['base_url']
             endpoint = config['endpoints']['random_quote']
             timeout = config['timeout']
