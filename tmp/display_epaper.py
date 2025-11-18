@@ -1,6 +1,10 @@
 import requests
 import sqlite3
 import os,sys,time
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+from get_config import get_config_value
+
 picdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'pic')
 libdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'lib')
 if os.path.exists(libdir):
@@ -24,9 +28,20 @@ def save_poem_to_db(poem_data, db_path='poems.db'):
     conn.close()
 
 
-def get_weather_data():
-    url = "http://api.weatherapi.com/v1/current.json?key=28962db3791a4792b4c90923241402&q=Guangzhou&aqi=no"
+def get_weather_data(api_key, city="Guangzhou"):
+    """
+    Get weather data from WeatherAPI.
+
+    Args:
+        api_key (str): WeatherAPI key
+        city (str): City name, defaults to Guangzhou
+
+    Returns:
+        dict: Weather data from API
+    """
+    url = f"http://api.weatherapi.com/v1/current.json?key={api_key}&q={city}&aqi=no"
     response = requests.get(url)
+    response.raise_for_status()
     weather_data = response.json()
     return weather_data
 
@@ -43,7 +58,9 @@ def download_and_resize_icon(icon_url, size=(64, 64)):
 
 # 这个部分需要根据您实际使用的电子墨水屏库进行调整
 def display_weather_on_epaper():
-    weather_data = get_weather_data()  # 确保这个函数获取了最新的天气数据
+    weather_api_key = get_config_value('WEATHER_API_KEY')
+city_api_key = get_config_value('CITY_API_KEY')
+weather_data = get_weather_data(weather_api_key, city_api_key)
     resized_icon = download_and_resize_icon(weather_data['current']['condition']['icon'],size=(32,32))
     
     # 初始化电子墨水屏、设置字体等
@@ -197,7 +214,9 @@ def display_poem_on_epaper():
 
 def display_on_epaper():
     ## 获取天气相关信息和图片
-    weather_data = get_weather_data()  # 确保这个函数获取了最新的天气数据
+    weather_api_key = get_config_value('WEATHER_API_KEY')
+city_api_key = get_config_value('CITY_API_KEY')
+weather_data = get_weather_data(weather_api_key, city_api_key)
     resized_icon = download_and_resize_icon(weather_data['current']['condition']['icon'],size=(32,32))
     ## 获取每日诗歌相关信息
     poem = get_poem_data()
