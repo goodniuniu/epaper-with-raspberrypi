@@ -69,8 +69,13 @@ epaper-with-raspberrypi/
 
 4. **Run the application:**
    ```bash
+   # Option 1: Use the convenient runner script
+   ./run_display.sh
+
+   # Option 2: Run manually
    cd src
-   python main.py
+   export PYTHONPATH="$HOME/e-Paper/RaspberryPi_JetsonNano/python/lib:$PYTHONPATH"
+   python main_with_display.py
    ```
 
 ## API Setup
