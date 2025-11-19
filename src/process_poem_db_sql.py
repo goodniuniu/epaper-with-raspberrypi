@@ -1,7 +1,7 @@
 import os
 import sqlite3
 
-def init_db(db_path='poems.db'):
+def init_db(db_path='data/poems.db'):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute('''
@@ -22,7 +22,7 @@ def init_db(db_path='poems.db'):
 def get_db_path(relative_path):
     """计算数据库文件的绝对路径。"""
     dir_of_script = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(dir_of_script, relative_path)
+    return os.path.join(dir_of_script, '..', relative_path)
 
 def save_poem_to_db(poem_data, db_path='poems.db'):
     db_path = get_db_path(db_path)  # 将相对路径转换为绝对路径

@@ -1,17 +1,18 @@
 import logging
 from pathlib import Path
-from typing import Optional, Dict, Any
 import requests
+from pathlib import Path
 
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 class PoemAPI:
-    def __init__(self, api_url: str, token_url: str, token_file: str = '../data/token.txt') -> None:
+    def __init__(self, api_url, token_url):
         self.api_url = api_url
         self.token_url = token_url
-        self.token_file = Path(token_file)
+        self.token_file = Path(__file__).parent.parent / 'data' / 'token.txt'
+        #self.token_file = Path(token_file)
         self.token = self.load_token()
         # 初始化诗歌详情属性
         self.title = None
@@ -20,12 +21,12 @@ class PoemAPI:
         self.content = None
         self.full_content = None
     
-    def get_token(self) -> Optional[str]:
+    def get_token(self):
         """
-        Request API token and store it in the file system.
-
-        Returns:
-            Optional[str]: The obtained token or None if failed.
+        请求API以获取Token，并将Token存储到文件系统中。
+        
+        返回:
+        - token: 获取到的Token。
         """
         try:
             # 发起GET请求获取Token
@@ -41,12 +42,12 @@ class PoemAPI:
             return None
 
     
-    def load_token(self) -> Optional[str]:
+    def load_token(self):
         """
-        Load token from file, or obtain new token if file doesn't exist.
-
-        Returns:
-            Optional[str]: The loaded token or None if failed.
+        从文件中加载Token，如果文件不存在或加载失败，则尝试获取新的Token。
+        
+        返回:
+        - token: 加载到的Token。
         """
         if self.token_file.exists():
             return self.token_file.read_text().strip()
@@ -56,12 +57,12 @@ class PoemAPI:
                 return token
         return None
 
-    def get_poem_detail(self) -> bool:
+    def get_poem_detail(self):
         """
-        Request daily poem API to get poem details and update class attributes.
-
-        Returns:
-            bool: True if successfully obtained and updated details, False otherwise.
+        请求每日古诗词API获取诗歌详情，并更新类属性。
+        
+        返回:
+        - bool: True表示成功获取并更新了详情，False表示获取详情失败。
         """
         headers = {'X-User-Token': self.token}
         try:
@@ -80,12 +81,12 @@ class PoemAPI:
             logging.error(f"请求每日古诗词时出错: {e}")
         return False  # 返回False表示获取详情失败
 
-    def update_token(self, new_token: str) -> None:
+    def update_token(self, new_token):
         """
-        Update token and write the new token to file.
-
-        Args:
-            new_token: The new token to store.
+        更新Token，并将新的Token写入文件。
+        
+        参数:
+        - new_token: 新的Token。
         """
         try:
             self.token = new_token

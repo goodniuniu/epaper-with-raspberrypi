@@ -35,30 +35,60 @@ def load_fonts():
     fonts = {}
 
     try:
-        # Try Chinese fonts first for proper poetry rendering
+        from PIL import ImageFont
+        logger.info("🔍 Searching for available fonts...")
+
+        # Try working version font first (which works for both English and Chinese)
         font_paths = [
+            "/home/admin/Downloads/e-Paper/RaspberryPi_JetsonNano/python/pic/Font.ttc",  # Working version font
+            "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",  # Try microhei first (usually more stable)
             "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
-            "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",  # Fallback for English only
         ]
 
-        for path in font_paths:
+        for i, path in enumerate(font_paths):
+            logger.info(f"🔍 Trying font {i+1}/{len(font_paths)}: {path}")
+
             if os.path.exists(path):
                 try:
-                    from PIL import ImageFont
+                    logger.info(f"📁 Font file exists, attempting to load...")
                     fonts['large'] = ImageFont.truetype(path, 24)
                     fonts['medium'] = ImageFont.truetype(path, 18)
                     fonts['small'] = ImageFont.truetype(path, 12)
-                    logger.info(f"✅ Loaded font: {path}")
+                    logger.info(f"✅ Successfully loaded font: {path}")
+
+                    # Test if font can render both English and Chinese characters
+                    test_text_en = "Test English"
+                    test_text_cn = "测试中文"
+
+                    # Test English rendering
+                    try:
+                        test_size_en = fonts['medium'].getlength(test_text_en)
+                        logger.info(f"📏 English test: '{test_text_en}' renders at {test_size_en:.1f} pixels")
+                    except Exception as e:
+                        logger.warning(f"⚠️ English rendering test failed: {e}")
+
+                    # Test Chinese rendering
+                    try:
+                        test_size_cn = fonts['medium'].getlength(test_text_cn)
+                        logger.info(f"📏 Chinese test: '{test_text_cn}' renders at {test_size_cn:.1f} pixels")
+                    except Exception as e:
+                        logger.warning(f"⚠️ Chinese rendering test failed: {e}")
+                        logger.warning(f"⚠️ This font may not support Chinese characters properly")
+                        continue  # Skip this font and try the next one
+
                     return fonts
+
                 except Exception as e:
-                    logger.warning(f"Failed to load font {path}: {e}")
+                    logger.warning(f"❌ Failed to load font {path}: {e}")
                     continue
+            else:
+                logger.warning(f"⚠️ Font file not found: {path}")
 
         # Fallback to default fonts
-        from PIL import ImageFont
+        logger.warning("⚠️ No TrueType fonts worked, using default fonts")
         fonts['large'] = fonts['medium'] = fonts['small'] = ImageFont.load_default()
-        logger.warning("⚠️ Using default fonts only")
+        logger.info("✅ Default fonts loaded")
 
     except Exception as e:
         logger.error(f"❌ Font loading failed: {e}")
@@ -67,16 +97,27 @@ def load_fonts():
     return fonts
 
 def initialize_display():
-    """Initialize e-paper display hardware"""
+    """Initialize e-paper display hardware using working method"""
     global epd
 
     try:
-        logger.info("🖼️ Initializing e-paper display...")
-        import waveshare_epd.epd3in52 as epd3in52
+        logger.info("🖼️ Initializing e-paper display using working method...")
+
+        # Use the working version import method
+        from waveshare_epd import epd3in52
         epd = epd3in52.EPD()
+
+        # Use the working version initialization sequence
         epd.init()
-        epd.Clear()
-        logger.info("✅ E-paper display initialized successfully")
+        epd.display_NUM(epd.WHITE)  # Use working method instead of Clear()
+        epd.lut_GC()                # Load lookup table
+        epd.refresh()               # Manual refresh
+
+        # Additional initialization from working version
+        epd.send_command(0x50)
+        epd.send_data(0x17)
+
+        logger.info("✅ E-paper display initialized successfully using working method")
         return True
     except Exception as e:
         logger.error(f"❌ Failed to initialize display: {e}")
@@ -108,22 +149,22 @@ def create_display_image(weather_data, poem_data, fonts, width, height):
             current = weather_data.get('current', {})
 
             # Location
-            location_text = f"📍 {location.get('name', 'Unknown')}"
+            location_text = f"{location.get('name', 'Unknown')}"
             draw.text((10, y_pos), location_text, font=fonts['small'], fill=0)
             y_pos += 20
 
             # Temperature
-            temp_text = f"🌡️ {current.get('temp_c', 'N/A')}°C"
+            temp_text = f"Temp: {current.get('temp_c', 'N/A')}C"
             draw.text((10, y_pos), temp_text, font=fonts['small'], fill=0)
             y_pos += 20
 
             # Weather condition
-            condition_text = f"☁️ {current.get('condition', {}).get('text', 'Unknown')}"
+            condition_text = f"Weather: {current.get('condition', {}).get('text', 'Unknown')}"
             draw.text((10, y_pos), condition_text, font=fonts['small'], fill=0)
             y_pos += 20
 
             # Humidity
-            humidity_text = f"💧 {current.get('humidity', 'N/A')}% humidity"
+            humidity_text = f"Humidity: {current.get('humidity', 'N/A')}%"
             draw.text((10, y_pos), humidity_text, font=fonts['small'], fill=0)
             y_pos += 20
         else:
@@ -167,17 +208,26 @@ def create_display_image(weather_data, poem_data, fonts, width, height):
             if poem_data.content:
                 y_pos += 5
                 try:
+                    logger.info(f"🎨 Attempting to render poem content: '{poem_data.content[:50]}...'")
                     # Split content and show first few lines
                     lines = poem_data.content.split('，')
                     for i, line in enumerate(lines[:3]):  # Show max 3 lines
                         if line.strip():
-                            draw.text((10, y_pos), line.strip() + ('，' if i < len(lines)-1 and i < 2 else ''), font=fonts['small'], fill=0)
+                            text_to_render = line.strip() + ('，' if i < len(lines)-1 and i < 2 else '')
+                            logger.info(f"🎨 Rendering line {i+1}: '{text_to_render}'")
+                            draw.text((10, y_pos), text_to_render, font=fonts['small'], fill=0)
                             y_pos += 20
                             if y_pos > height - 80:  # Prevent overflow
                                 break
                 except Exception as e:
                     logger.warning(f"Could not render poem content: {e}")
-                    draw.text((10, y_pos), "Poem content unavailable", font=fonts['small'], fill=0)
+                    # Fallback to English message if Chinese rendering fails
+                    try:
+                        draw.text((10, y_pos), "Poem content display error", font=fonts['small'], fill=0)
+                    except Exception as e2:
+                        logger.error(f"Even fallback text failed: {e2}")
+                        from PIL import ImageFont
+                        draw.text((10, y_pos), "Poem error", font=ImageFont.load_default(), fill=0)
         else:
             draw.text((10, y_pos), "Poetry data unavailable", font=fonts['small'], fill=0)
             y_pos += 20
@@ -197,7 +247,7 @@ def create_display_image(weather_data, poem_data, fonts, width, height):
         return None
 
 def display_on_epaper(image):
-    """Display image on e-paper screen"""
+    """Display image on e-paper screen using working method"""
     global epd
 
     if not epd or not image:
@@ -205,9 +255,14 @@ def display_on_epaper(image):
         return False
 
     try:
-        logger.info("📺 Displaying image on e-paper...")
+        logger.info("📺 Displaying image on e-paper using working method...")
+
+        # Use the working version display sequence
         epd.display(epd.getbuffer(image))
-        logger.info("✅ Image displayed successfully!")
+        epd.lut_GC()    # Load lookup table after display
+        epd.refresh()   # Manual refresh
+
+        logger.info("✅ Image displayed successfully using working method!")
 
         # Save a copy for debugging
         image.save('current_display.png')
@@ -219,14 +274,19 @@ def display_on_epaper(image):
         return False
 
 def cleanup_display():
-    """Clean up and put display to sleep"""
+    """Clean up and put display to sleep using working method"""
     global epd
 
     if epd:
         try:
-            logger.info("😴 Putting display to sleep...")
+            logger.info("😴 Putting display to sleep using working method...")
             epd.sleep()
             logger.info("✅ Display put to sleep successfully")
+
+            # Use the working version cleanup method
+            from waveshare_epd import epd3in52
+            epd3in52.epdconfig.module_exit(cleanup=True)
+            logger.info("✅ GPIO cleanup completed")
         except Exception as e:
             logger.error(f"❌ Error putting display to sleep: {e}")
 
